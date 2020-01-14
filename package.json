@@ -1,0 +1,50 @@
+{
+  "name": "ag-grid-odata",
+  "version": "1.0.0",
+  "description": "Implementation Odata ServerSideDatasource for ag-grid",
+  "main": "build/index.js",
+  "module": "build/index.es.js",
+  "jsnext:main": "build/index.es.js",
+  "scripts": {
+    "build": "rollup -c",
+    "lint": "standard --fix",
+    "format": "prettier-standard --format",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "files": [
+    "build"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SenyaMur/ag-grid-odata.git"
+  },
+  "keywords": [
+    "ag-grid",
+    "odata"
+  ],
+  "author": "Semen Muradkhanov <senyamur@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SenyaMur/ag-grid-odata/issues"
+  },
+  "homepage": "https://github.com/SenyaMur/ag-grid-odata#readme",
+  "devDependencies": {
+    "@babel/core": "^7.8.0",
+    "@babel/plugin-proposal-class-properties": "^7.8.0",
+    "babel-eslint": "^10.0.3",
+    "prettier-standard": "^16.1.0",
+    "rollup": "^1.29.0",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "standard": "^14.3.1",
+    "standard-prettier": "^1.0.1"
+  },
+  "standard": {
+    "parser": "babel-eslint",
+    "ignore": [
+      "node_modules/",
+      "build/"
+    ]
+  }
+}
