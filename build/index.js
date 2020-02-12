@@ -309,11 +309,14 @@ class OdataProvider {
       me.callApi(me.toQuery({
         apply: [`groupby((${me.getWrapColumnName(field)}))`]
       })).then(x => {
-        if (x && x.value) {
-          callback(x.value.map(x => x[field]));
+        if (x) {
+          let values = me.getOdataResult(x);
+          callback(values.map(x => x[field]));
         }
       });
     });
+
+    _defineProperty(this, "getOdataResult", response => Array.isArray(response) ? response : response.value);
 
     _defineProperty(this, "getWrapColumnName", colName => colName.replace('.', '/'));
 
@@ -458,27 +461,29 @@ class OdataProvider {
         if (!x) {
           params.failCallback();
         } else {
+          const values = me.getOdataResult(x);
+
           if (!pivotActive) {
             if (!options.apply) {
-              params.successCallback(x.value, x['@odata.count']);
+              params.successCallback(values, x['@odata.count']);
 
               if (this.afterLoadData) {
-                this.afterLoadData(options, x.value, x['@odata.count']);
+                this.afterLoadData(options, values, x['@odata.count']);
               }
             } else {
-              let count = x.value.length;
+              let count = values.length;
 
               if (count === options.top && options.skip === 0) {
                 // Если мы получили группировку с числом экземпляров больше чем у мы запросили, то делаем запрос общего количества
                 me.callApi(query + '/aggregate($count as count)').then(y => {
                   count = y[0].count;
-                  params.successCallback(x.value, count);
+                  params.successCallback(values, count);
                 });
               } else {
-                params.successCallback(x.value, count);
+                params.successCallback(values, count);
 
                 if (this.afterLoadData) {
-                  this.afterLoadData(options, x.value, count);
+                  this.afterLoadData(options, values, count);
                 }
               }
             }
