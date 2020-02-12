@@ -399,7 +399,7 @@ class OdataProvider {
               }
             }
 
-            let groups = [request.rowGroupCols[request.groupKeys.length].field];
+            let groups = [me.getWrapColumnName(request.rowGroupCols[request.groupKeys.length].field)];
             const sort = options.sort || [];
             const sortColOnly = sort.map(x => x.split(' ')[0]);
 
@@ -433,7 +433,8 @@ class OdataProvider {
 
       if (apply.length > 0) {
         options.apply = apply;
-        options.filter = null; // options.sort = null;
+        options.filter = null;
+        options.expand = null; // options.sort = null;
       }
 
       options.skip = request.startRow;
