@@ -316,6 +316,8 @@ class OdataProvider {
       });
     });
 
+    _defineProperty(this, "isStrVal", value => typeof value === "string");
+
     _defineProperty(this, "getOdataResult", response => Array.isArray(response) ? response : response.value);
 
     _defineProperty(this, "getWrapColumnName", colName => colName.replace('.', '/'));
@@ -384,7 +386,7 @@ class OdataProvider {
             // If request only groups
             for (let idx = 0; idx < request.groupKeys.length; idx++) {
               const colValue = request.groupKeys[idx];
-              const condition = `${me.getWrapColumnName(request.rowGroupCols[idx].field)} eq '${me.encode(colValue)}'`;
+              const condition = `${me.getWrapColumnName(request.rowGroupCols[idx].field)} eq ${(me.isStrVal(colValue) ? "'" : "") + me.encode(colValue) + (me.isStrVal(colValue) ? "'" : "")}`;
               filterGroupBy.push(condition);
             }
 

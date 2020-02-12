@@ -346,6 +346,7 @@ export class OdataProvider {
       }
     })
   }
+  isStrVal =(value) => (typeof value) === "string"
   getOdataResult = (response) =>  Array.isArray(response) ? response: response.value 
   getWrapColumnName = colName => colName.replace('.', '/')
   getRows = params => {
@@ -407,7 +408,7 @@ export class OdataProvider {
             const colValue = request.groupKeys[idx]
             const condition = `${me.getWrapColumnName(
               request.rowGroupCols[idx].field
-            )} eq '${me.encode(colValue)}'`
+            )} eq ${(me.isStrVal(colValue)? "'":"")+me.encode(colValue)+(me.isStrVal(colValue)? "'":"")}`
             filterGroupBy.push(condition)
           }
           if (filterGroupBy.length > 0 || filter.length > 0) {

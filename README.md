@@ -2,6 +2,9 @@
 
 Odata provider for ag-grid
 
+Ag-Grid Server Side Row Model [demo](https://codesandbox.io/s/ag-grid-server-side-row-model-sample-v95fi?fontsize=14&hidenavigation=1&theme=dark)
+
+
 ## Installation
 
   `npm install ag-grid-odata`
@@ -15,6 +18,9 @@ Features in client mode:
 * Fetch records
 * Sorting
 * Filter
+
+<details>
+  <summary>Code example</summary>
 
 ```js
 import OdataProvider from 'ag-grid-odata'
@@ -71,14 +77,17 @@ return (
         headerName="Invoice Number"
       />
       <AgGridColumn
+        enableRowGroup
         field="Order_Date"
         headerName="Date"
       />
       <AgGridColumn
+        enableValue
         field="Order_Shipping_Amount"
         headerName="Shipping Amount"
       />
       <AgGridColumn
+        enableValue
         field="Order_Total_Amount"
         headerName="Total Amount"
       />
@@ -86,6 +95,8 @@ return (
   )
 }
 ```
+
+</details>
 
 ### Server mode
 
@@ -97,6 +108,9 @@ Features in client mode:
 * Grouping
 * Aggregation
 * Pivot
+
+<details>
+  <summary>Code example</summary>
 
 ```js
 import OdataProvider from 'ag-grid-odata'
@@ -163,14 +177,17 @@ return (
         headerName="Invoice Number"
       />
       <AgGridColumn
+        enableRowGroup
         field="Order_Date"
         headerName="Date"
       />
       <AgGridColumn
+        enableValue
         field="Order_Shipping_Amount"
         headerName="Shipping Amount"
       />
       <AgGridColumn
+        enableValue
         field="Order_Total_Amount"
         headerName="Total Amount"
       />
@@ -178,3 +195,5 @@ return (
   )
 }
 ```
+
+</details>
