@@ -376,7 +376,7 @@ export class OdataProvider {
       if (request.filterModel.hasOwnProperty(colName)) {
         const col = request.filterModel[colName]
         let colFilter = ''
-        if (col.filterType) {
+        if (!col.operator) {
           colFilter = me.getFilterOdata(colName, col)
           if (colFilter) {
             filter.push(colFilter)
