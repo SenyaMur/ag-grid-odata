@@ -2,7 +2,7 @@
 
 Odata provider for ag-grid
 
-Ag-Grid Server Side Row Model [demo](https://codesandbox.io/s/ag-grid-server-side-row-model-sample-v95fi?fontsize=14&hidenavigation=1&theme=dark)
+Ag-Grid Server Side Row Model [demo](https://codesandbox.io/s/ag-grid-server-side-row-model-sample-zqujt?fontsize=14&hidenavigation=1&theme=dark)
 
 
 ## Installation
