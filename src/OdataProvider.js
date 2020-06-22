@@ -5,6 +5,7 @@ export class OdataProvider {
   beforeRequest = null
   beforeSetSecondaryColumns = null
   afterLoadData = null
+  setError = null
   constructor (options = {}) {
     Object.assign(this, options)
     if (this.callApi == null) {
@@ -24,6 +25,12 @@ export class OdataProvider {
       typeof this.afterLoadData !== 'function'
     ) {
       throw new Error('afterLoadData must be a function')
+    }
+    if (
+      this.setError != null && 
+      typeof this.setError !== 'function'
+    ){
+      throw new Error('setError must be a function')
     }
   }
 
@@ -571,6 +578,16 @@ export class OdataProvider {
           }
         }
       }
-    })
+    },
+    err => {
+      if (this.setError) {
+        setOnError(this.setError)
+      }
+      if (onError) {
+        onError(err)
+      }
+      // params.successCallback([], 0)
+    }
+  ))
   }
 }

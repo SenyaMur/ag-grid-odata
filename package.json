@@ -4,6 +4,7 @@
   "description": "Implementation Odata ServerSideDatasource for ag-grid",
   "main": "build/index.js",
   "module": "build/index.es.js",
+  "types": "index.d.ts",
   "jsnext:main": "build/index.es.js",
   "scripts": {
     "build": "rollup -c",
@@ -39,6 +40,10 @@
     "rollup-plugin-node-resolve": "^5.2.0",
     "standard": "^14.3.1",
     "standard-prettier": "^1.0.1"
+  },
+  "peerDependencies": {
+    "@ag-grid-community/react": "^22.0.0",
+    "@ag-grid-enterprise/all-modules": "22.0.0"
   },
   "standard": {
     "parser": "babel-eslint",
