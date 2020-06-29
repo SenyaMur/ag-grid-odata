@@ -238,5 +238,15 @@ export declare class OdataProvider {
      * @param params ag-grid details for the request
      */
     getRows(params: IGetRowsParams | IServerSideGetRowsParams): void;
+    /**
+     * Generate odata options for build query from ag-grid request
+     * @param params ag-grid details for the request
+     */
+    getOdataOptions(params: IGetRowsParams | IServerSideGetRowsParams): string;
+    /**
+     * Generate odata query from ag-grid request
+     * @param params ag-grid details for the request
+     */
+    getOdataQuery(params: IGetRowsParams | IServerSideGetRowsParams): string;
         
 }

@@ -4,10 +4,9 @@ Odata provider for ag-grid
 
 Ag-Grid Server Side Row Model [demo](https://codesandbox.io/s/ag-grid-server-side-row-model-sample-zqujt?fontsize=14&hidenavigation=1&theme=dark)
 
-
 ## Installation
 
-  `npm install ag-grid-odata`
+`npm install ag-grid-odata`
 
 ## Usage
 
@@ -15,9 +14,9 @@ Ag-Grid Server Side Row Model [demo](https://codesandbox.io/s/ag-grid-server-sid
 
 Features in client mode:
 
-* Fetch records
-* Sorting
-* Filter
+- Fetch records
+- Sorting
+- Filter
 
 <details>
   <summary>Code example</summary>
@@ -102,12 +101,12 @@ return (
 
 Features in client mode:
 
-* Fetch records
-* Sorting
-* Filter
-* Grouping
-* Aggregation
-* Pivot
+- Fetch records
+- Sorting
+- Filter
+- Grouping
+- Aggregation
+- Pivot
 
 <details>
   <summary>Code example</summary>

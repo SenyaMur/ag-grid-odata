@@ -359,9 +359,121 @@ export class OdataProvider {
   getRows = params => {
     const me = this
     const childCount = me.groupCountFieldName
+    const isServerMode = params.request != null
+    const request = isServerMode ? params.request : params
+    const pivotActive = !isServerMode
+      ? false
+      : request.pivotMode &&
+        request.pivotCols.length > 0 &&
+        request.valueCols.length > 0
+
+    if (!pivotActive) {
+      params.parentNode.columnApi.setSecondaryColumns(null)
+    }
+    const options = me.getOdataOptions(params)
+    const query = me.toQuery(options)
+    me.callApi(query).then(async x => {
+      if (!x) {
+        params.failCallback()
+      } else {
+        const values = me.getOdataResult(x);
+        if (!pivotActive) {
+          if (!options.apply) {
+            params.successCallback(values, x['@odata.count'])
+            if (this.afterLoadData) {
+              this.afterLoadData(options, values, x['@odata.count'])
+            }
+          } else {
+            let count = values.length
+            if (count === options.top && options.skip === 0) {
+              // Если мы получили группировку с числом экземпляров больше чем у мы запросили, то делаем запрос общего количества
+              me.callApi(query + '/aggregate($count as count)').then(y => {
+                count = y[0].count
+                params.successCallback(values, count)
+              })
+            } else {
+              params.successCallback(values, count)
+              if (this.afterLoadData) {
+                this.afterLoadData(options, values, count)
+              }
+            }
+          }
+        } else {
+          let rowData = x
+          // Check count
+          if (
+            rowData.length === options.top &&
+            options.skip === 0 &&
+            request.groupKeys.length === 0
+          ) {
+            let eof = false
+            while (!eof) {
+              options.skip += options.top
+              const subQuery = me.toQuery(options)
+              const newRowData = await me.callApi(subQuery)
+              if (!newRowData) {
+                params.failCallback()
+                return
+              }
+              eof = newRowData.length !== options.top
+              rowData = rowData.concat(newRowData)
+            }
+          }
+          const pivotResult = me.getPivot(
+            request.pivotCols,
+            request.rowGroupCols,
+            request.valueCols,
+            rowData,
+            childCount
+          )
+          rowData = pivotResult.data
+          const secondaryColDefs = pivotResult.secondaryColDefs
+          rowData = me.buildGroupsFromData(
+            rowData,
+            request.rowGroupCols,
+            request.groupKeys,
+            childCount
+          )
+          const totalCount =
+            request.groupKeys.length === 0
+              ? rowData.length
+              : rowData.length === options.top
+                ? null
+                : rowData.length
+          if (totalCount > options.top) {
+            const serverSideBlock =
+              params.parentNode.rowModel.rowNodeBlockLoader.blocks[0]
+            serverSideBlock.rowNodeCacheParams.blockSize = totalCount
+            serverSideBlock.endRow = serverSideBlock.startRow + totalCount
+            serverSideBlock.createRowNodes()
+          }
+          params.successCallback(rowData, totalCount)
+          if (this.afterLoadData) {
+            this.afterLoadData(options, rowData, totalCount)
+          }
+          if (request.groupKeys.length === 0) {
+            if (this.beforeSetSecondaryColumns) {
+              this.beforeSetSecondaryColumns(secondaryColDefs)
+            }
+            params.parentNode.columnApi.setSecondaryColumns(secondaryColDefs)
+          }
+        }
+      }
+    },
+    err => {
+      if (this.setError) {
+        this.setError(err)
+      }
+      // params.successCallback([], 0)
+    }
+  )
+  }
+  getOdataOptions = params=>{
+    const me = this
     const options = {}
     const isServerMode = params.request != null
     const request = isServerMode ? params.request : params
+    const childCount = me.groupCountFieldName
     if (this.beforeRequest) {
       this.beforeRequest(options, this, request)
     }
@@ -486,108 +598,7 @@ export class OdataProvider {
     if (!options.apply && options.skip === 0) {
       options.count = true
     }
-    const query = me.toQuery(options)
-
-    if (!pivotActive) {
-      params.parentNode.columnApi.setSecondaryColumns(null)
-    }
-    me.callApi(query).then(async x => {
-      if (!x) {
-        params.failCallback()
-      } else {
-        const values = me.getOdataResult(x);
-        if (!pivotActive) {
-          if (!options.apply) {
-            params.successCallback(values, x['@odata.count'])
-            if (this.afterLoadData) {
-              this.afterLoadData(options, values, x['@odata.count'])
-            }
-          } else {
-            let count = values.length
-            if (count === options.top && options.skip === 0) {
-              // Если мы получили группировку с числом экземпляров больше чем у мы запросили, то делаем запрос общего количества
-              me.callApi(query + '/aggregate($count as count)').then(y => {
-                count = y[0].count
-                params.successCallback(values, count)
-              })
-            } else {
-              params.successCallback(values, count)
-              if (this.afterLoadData) {
-                this.afterLoadData(options, values, count)
-              }
-            }
-          }
-        } else {
-          let rowData = x
-          // Check count
-          if (
-            rowData.length === options.top &&
-            options.skip === 0 &&
-            request.groupKeys.length === 0
-          ) {
-            let eof = false
-            while (!eof) {
-              options.skip += options.top
-              const subQuery = me.toQuery(options)
-              const newRowData = await me.callApi(subQuery)
-              if (!newRowData) {
-                params.failCallback()
-                return
-              }
-              eof = newRowData.length !== options.top
-              rowData = rowData.concat(newRowData)
-            }
-          }
-          const pivotResult = me.getPivot(
-            request.pivotCols,
-            request.rowGroupCols,
-            request.valueCols,
-            rowData,
-            childCount
-          )
-          rowData = pivotResult.data
-          const secondaryColDefs = pivotResult.secondaryColDefs
-          rowData = me.buildGroupsFromData(
-            rowData,
-            request.rowGroupCols,
-            request.groupKeys,
-            childCount
-          )
-          const totalCount =
-            request.groupKeys.length === 0
-              ? rowData.length
-              : rowData.length === options.top
-                ? null
-                : rowData.length
-          if (totalCount > options.top) {
-            const serverSideBlock =
-              params.parentNode.rowModel.rowNodeBlockLoader.blocks[0]
-            serverSideBlock.rowNodeCacheParams.blockSize = totalCount
-            serverSideBlock.endRow = serverSideBlock.startRow + totalCount
-            serverSideBlock.createRowNodes()
-          }
-          params.successCallback(rowData, totalCount)
-          if (this.afterLoadData) {
-            this.afterLoadData(options, rowData, totalCount)
-          }
-          if (request.groupKeys.length === 0) {
-            if (this.beforeSetSecondaryColumns) {
-              this.beforeSetSecondaryColumns(secondaryColDefs)
-            }
-            params.parentNode.columnApi.setSecondaryColumns(secondaryColDefs)
-          }
-        }
-      }
-    },
-    err => {
-      if (this.setError) {
-        setOnError(this.setError)
-      }
-      if (onError) {
-        onError(err)
-      }
-      // params.successCallback([], 0)
-    }
-  ))
+    return options
   }
+  getOdataQuery = params =>this.toQuery(this.getOdataOptions(params))
 }

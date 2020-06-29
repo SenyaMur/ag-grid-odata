@@ -42,7 +42,7 @@
     "standard-prettier": "^1.0.1"
   },
   "peerDependencies": {
-    "@ag-grid-community/react": "^22.0.0",
+    "@ag-grid-community/all-modules": "^22.0.0",
     "@ag-grid-enterprise/all-modules": "22.0.0"
   },
   "standard": {
@@ -51,5 +51,6 @@
       "node_modules/",
       "build/"
     ]
-  }
+  },
+  "dependencies": {}
 }
