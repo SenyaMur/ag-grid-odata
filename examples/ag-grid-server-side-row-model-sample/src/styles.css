@@ -1,0 +1,19 @@
+.App {
+  font-family: sans-serif;
+  text-align: center;
+}
+
+
+.whiteSpace {
+  white-space: normal;
+}
+
+.display-werid {
+    width: 100%;
+    display: flex;
+    cursor: pointer;
+    border-width: 1px 0 0 0;
+    border-style: solid;
+    border-color: #e2e2e2;
+    line-height: 85px !important;
+}
