@@ -176,7 +176,7 @@ var OdataProvider = /** @class */ (function () {
            * Add quotes for string value
            * @param value string value
            */
-        this.encode = function (value) { return (value ? value.replace("'", "''") : value); };
+        this.encode = function (value) { return (_this.isStrVal(value) ? value.replace("'", "''") : value); };
         /**
            * Conctat to date a time for create datetime format for odata query
            * @param value date string
@@ -491,11 +491,14 @@ var OdataProvider = /** @class */ (function () {
                                 if (count_1 === options.top && options.skip === 0) {
                                     // Если мы получили группировку с числом экземпляров больше чем у мы запросили, то делаем запрос общего количества
                                     me.callApi(query + '/aggregate($count as count)').then(function (y) {
-                                        count_1 = y[0].count;
+                                        count_1 = me.getOdataResult(y)[0].count;
                                         params.successCallback(values_1, count_1);
                                     });
                                 }
                                 else {
+                                    if (options.skip != null && options.skip > 0) {
+                                        count_1 = null;
+                                    }
                                     params.successCallback(values_1, count_1);
                                     if (this.afterLoadData) {
                                         this.afterLoadData(options, values_1, count_1);
@@ -657,7 +660,7 @@ var OdataProvider = /** @class */ (function () {
                         // If request rowData by group filter
                         for (var idx = 0; idx < requestSrv.groupKeys.length; idx++) {
                             var colValue = requestSrv.groupKeys[idx];
-                            var condition = me.getWrapColumnName(requestSrv.rowGroupCols[idx].field) + " eq '" + colValue + "'";
+                            var condition = me.getWrapColumnName(requestSrv.rowGroupCols[idx].field) + " eq " + ((me.isStrVal(colValue) ? "'" : "") + me.encode(colValue) + (me.isStrVal(colValue) ? "'" : ""));
                             filter.push(condition);
                         }
                     }

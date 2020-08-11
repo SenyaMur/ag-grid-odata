@@ -269,7 +269,7 @@ export class OdataProvider implements OdataProviderOptions {
      * Add quotes for string value
      * @param value string value
      */
-  encode = (value:string):string => (value ? value.replace("'", "''") : value)
+  encode = (value:string):string => (this.isStrVal(value) ? value.replace("'", "''") : value)
   /**
      * Conctat to date a time for create datetime format for odata query
      * @param value date string
@@ -618,10 +618,13 @@ export class OdataProvider implements OdataProviderOptions {
             if (count === options.top && options.skip === 0) {
               // Если мы получили группировку с числом экземпляров больше чем у мы запросили, то делаем запрос общего количества
               me.callApi(query + '/aggregate($count as count)').then(y => {
-                count = y[0].count
+                count = me.getOdataResult(y)[0].count
                 params.successCallback(values, count)
               })
             } else {
+              if (options.skip != null && options.skip > 0){
+                count = null
+              }
               params.successCallback(values, count)
               if (this.afterLoadData) {
                 this.afterLoadData(options, values, count)
@@ -811,7 +814,7 @@ export class OdataProvider implements OdataProviderOptions {
             const colValue = requestSrv.groupKeys[idx]
             const condition = `${me.getWrapColumnName(
               requestSrv.rowGroupCols[idx].field
-            )} eq '${colValue}'`
+            )} eq ${(me.isStrVal(colValue)? "'":"")+me.encode(colValue)+(me.isStrVal(colValue)? "'":"")}`
             filter.push(condition)
           }
         }

@@ -42,7 +42,9 @@
     "standard": "^14.3.4",
     "standard-prettier": "^1.0.1",
     "ts-jest": "^26.1.1",
-    "typescript": "^3.9.6"
+    "typescript": "^3.9.6",
+    "@ag-grid-community/all-modules": "^22.0.0",
+    "@ag-grid-enterprise/all-modules": "22.0.0"
   },
   "peerDependencies": {
     "@ag-grid-community/all-modules": "^22.0.0",
