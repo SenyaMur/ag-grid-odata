@@ -1,6 +1,6 @@
 {
   "name": "ag-grid-odata",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Implementation Odata ServerSideDatasource for ag-grid",
   "main": "build/index.js",
   "module": "build/index.es.js",
