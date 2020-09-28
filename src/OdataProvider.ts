@@ -83,9 +83,11 @@ export declare class OdataProviderOptions {
    */
   setError?: (error: any) => void;
 }
-
+function escapeRegExp(string) {
+  return string.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
+}
 function replaceAll(str: string, search: string, replacement: string): string {
-  return str.replace(new RegExp(search, "g"), replacement);
+  return str.replace(new RegExp(escapeRegExp(search), "g"), replacement);
 }
 
 export class OdataProvider implements OdataProviderOptions {
@@ -666,7 +668,7 @@ export class OdataProvider implements OdataProviderOptions {
    * @param colName column name
    */
   private getWrapColumnName = (colName: string): string =>
-    colName.replace(".", "/");
+    replaceAll(colName, ".", "/");
   /**
    * grid calls this to get rows
    * @param params ag-grid details for the request

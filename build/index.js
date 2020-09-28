@@ -60,8 +60,11 @@ function __generator(thisArg, body) {
     }
 }
 
+function escapeRegExp(string) {
+    return string.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
+}
 function replaceAll(str, search, replacement) {
-    return str.replace(new RegExp(search, "g"), replacement);
+    return str.replace(new RegExp(escapeRegExp(search), "g"), replacement);
 }
 var OdataProvider = /** @class */ (function () {
     function OdataProvider(options) {
@@ -476,7 +479,7 @@ var OdataProvider = /** @class */ (function () {
          * @param colName column name
          */
         this.getWrapColumnName = function (colName) {
-            return colName.replace(".", "/");
+            return replaceAll(colName, ".", "/");
         };
         /**
          * grid calls this to get rows
