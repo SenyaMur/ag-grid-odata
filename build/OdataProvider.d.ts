@@ -1,6 +1,6 @@
-import { IGetRowsParams, ColDef, ColGroupDef, IServerSideGetRowsRequest } from '@ag-grid-community/all-modules';
-import { IServerSideGetRowsParams } from '@ag-grid-enterprise/all-modules';
-import { OdataQueryExtendFull, OdataQueryExtendOptions, OdataQueryOptions } from './types';
+import { IGetRowsParams, ColDef, ColGroupDef, IServerSideGetRowsRequest } from "@ag-grid-community/all-modules";
+import { IServerSideGetRowsParams } from "@ag-grid-enterprise/all-modules";
+import { OdataQueryExtendFull, OdataQueryExtendOptions, OdataQueryOptions } from "./types";
 export declare class OdataProviderOptions {
     /**
      * Function for call odata api
@@ -21,39 +21,39 @@ export declare class OdataProviderOptions {
      */
     beforeRequest?: (options: OdataQueryOptions, provider: OdataProvider, request: IGetRowsParams | IServerSideGetRowsRequest) => void;
     /**
-     * Callback for pivot or group for aplly column ag-grid settings
-     * @example
-     * <pre><code>
-     * beforeSetSecondaryColumns = secondaryColumns => {
-      for (let i = 0; i < secondaryColumns.length; i++) {
-        const col = secondaryColumns[i]
-        if (col.children) {
-          beforeSetSecondaryColumns(col.children)
-        } else {
-          //Aplly new setting for group dyncamic created column
-          // col.cellClassRules =
-          // col.valueFormatter =
-        }
-      }
-    }
-     * </pre></code>
-     */
+    * Callback for pivot or group for aplly column ag-grid settings
+    * @example
+    * <pre><code>
+    * beforeSetSecondaryColumns = secondaryColumns => {
+     for (let i = 0; i < secondaryColumns.length; i++) {
+       const col = secondaryColumns[i]
+       if (col.children) {
+         beforeSetSecondaryColumns(col.children)
+       } else {
+         //Aplly new setting for group dyncamic created column
+         // col.cellClassRules =
+         // col.valueFormatter =
+       }
+     }
+   }
+    * </pre></code>
+    */
     beforeSetSecondaryColumns?: (secondaryColDefs: (ColDef | ColGroupDef)[]) => void;
     /**
-     * Callback invoked after load data
-     * @param options odata provider options
-     * @param rowData data for ag-grid
-     * @param totalCount total count records
-     *
-     * @example
-     * <pre><code>
-          afterLoadData = (options, rowData, totalCount) => {
-              if (options.skip === 0 && rowData.length > 0) {
-              gridApi.columnController.autoSizeAllColumns()
-              }
-          }
-     * </code></pre>
-     */
+    * Callback invoked after load data
+    * @param options odata provider options
+    * @param rowData data for ag-grid
+    * @param totalCount total count records
+    *
+    * @example
+    * <pre><code>
+         afterLoadData = (options, rowData, totalCount) => {
+             if (options.skip === 0 && rowData.length > 0) {
+             gridApi.columnController.autoSizeAllColumns()
+             }
+         }
+    * </code></pre>
+    */
     afterLoadData?: (options: OdataQueryExtendOptions, rowData: any[], totalCount: number) => void;
     /**
      * Callback for catch error
@@ -62,8 +62,8 @@ export declare class OdataProviderOptions {
 }
 export declare class OdataProvider implements OdataProviderOptions {
     /**
-        * Function for call odata api
-        */
+     * Function for call odata api
+     */
     callApi: (query: string) => Promise<any>;
     /**
      * Name of field contain count of record results in grouping odata query
@@ -80,39 +80,39 @@ export declare class OdataProvider implements OdataProviderOptions {
      */
     beforeRequest: (options: OdataQueryOptions, provider: OdataProvider, request: IGetRowsParams | IServerSideGetRowsRequest) => void;
     /**
-     * Callback for pivot or group for aplly column ag-grid settings
-     * @example
-     * <pre><code>
-     * beforeSetSecondaryColumns = secondaryColumns => {
-      for (let i = 0; i < secondaryColumns.length; i++) {
-        const col = secondaryColumns[i]
-        if (col.children) {
-          beforeSetSecondaryColumns(col.children)
-        } else {
-          //Aplly new setting for group dyncamic created column
-          // col.cellClassRules =
-          // col.valueFormatter =
-        }
-      }
-    }
-     * </pre></code>
-     */
+      * Callback for pivot or group for aplly column ag-grid settings
+      * @example
+      * <pre><code>
+      * beforeSetSecondaryColumns = secondaryColumns => {
+       for (let i = 0; i < secondaryColumns.length; i++) {
+         const col = secondaryColumns[i]
+         if (col.children) {
+           beforeSetSecondaryColumns(col.children)
+         } else {
+           //Aplly new setting for group dyncamic created column
+           // col.cellClassRules =
+           // col.valueFormatter =
+         }
+       }
+     }
+      * </pre></code>
+      */
     beforeSetSecondaryColumns: (secondaryColDefs: (ColDef | ColGroupDef)[]) => void;
     /**
-     * Callback invoked after load data
-     * @param options odata provider options
-     * @param rowData data for ag-grid
-     * @param totalCount total count records
-     *
-     * @example
-     * <pre><code>
-          afterLoadData = (options, rowData, totalCount) => {
-              if (options.skip === 0 && rowData.length > 0) {
-              gridApi.columnController.autoSizeAllColumns()
-              }
-          }
-     * </code></pre>
-     */
+      * Callback invoked after load data
+      * @param options odata provider options
+      * @param rowData data for ag-grid
+      * @param totalCount total count records
+      *
+      * @example
+      * <pre><code>
+           afterLoadData = (options, rowData, totalCount) => {
+               if (options.skip === 0 && rowData.length > 0) {
+               gridApi.columnController.autoSizeAllColumns()
+               }
+           }
+      * </code></pre>
+      */
     afterLoadData: (options: OdataQueryExtendOptions, rowData: any[], totalCount: number) => void;
     /**
      * Callback for catch error
@@ -140,20 +140,20 @@ export declare class OdataProvider implements OdataProviderOptions {
         trunc: (col: string) => string;
     };
     /**
-      * Apply tolower for column in odata syntax
-      * @param col column name
-      * @param isCaseSensitiveStringFilter need apply tolower
-      */
+     * Apply tolower for column in odata syntax
+     * @param col column name
+     * @param isCaseSensitiveStringFilter need apply tolower
+     */
     ifTolowerCol: (col: string, isCaseSensitiveStringFilter: boolean) => string;
     /**
-       *
-       * @param value string value
-       * @param isCaseSensitiveStringFilter  need apply tolower
-       */
+     *
+     * @param value string value
+     * @param isCaseSensitiveStringFilter  need apply tolower
+     */
     ifTolower: (value: string, isCaseSensitiveStringFilter: boolean) => string;
     /**
-       * Odata aggregation operations
-       */
+     * Odata aggregation operations
+     */
     odataAggregation: {
         sum: (col: string, asField?: any) => string;
         min: (col: string, asField?: any) => string;
@@ -162,60 +162,60 @@ export declare class OdataProvider implements OdataProviderOptions {
         count: (col: string, asField?: any) => string;
     };
     /**
-       * Odata query builder
-       * @param options parameter for odata query
-       */
+     * Odata query builder
+     * @param options parameter for odata query
+     */
     toQuery: (options: OdataQueryExtendFull) => string;
     /**
-       * Add quotes for string value
-       * @param value string value
-       */
+     * Add quotes for string value
+     * @param value string value
+     */
     encode: (value: string) => string;
     /**
-       * Conctat to date a time for create datetime format for odata query
-       * @param value date string
-       */
+     * Conctat to date a time for create datetime format for odata query
+     * @param value date string
+     */
     toDateTime: (value: string) => string;
     /**
-       * Convert ag-grid column filter to odata query
-       * @param colName columnName
-       * @param col ag-grid column
-       */
+     * Convert ag-grid column filter to odata query
+     * @param colName columnName
+     * @param col ag-grid column
+     */
     private getFilterOdata;
     /**
-       * Caclulate pivot data for ag-grid from odata
-       * @param pivotCols pivot columns
-       * @param rowGroupCols row group columns
-       * @param valueCols value columns
-       * @param data odata result
-       * @param countField count field name
-       */
+     * Caclulate pivot data for ag-grid from odata
+     * @param pivotCols pivot columns
+     * @param rowGroupCols row group columns
+     * @param valueCols value columns
+     * @param data odata result
+     * @param countField count field name
+     */
     private getPivot;
     /**
-       *
-       * @param rowData array odata result
-       * @param rowGroupCols row group columns
-       * @param groupKeys what groups the user is viewing
-       * @param countField count field name
-       */
+     *
+     * @param rowData array odata result
+     * @param rowGroupCols row group columns
+     * @param groupKeys what groups the user is viewing
+     * @param countField count field name
+     */
     private buildGroupsFromData;
     /**
-       * Internal function for execute callback function for each property of object
-       * @param object object contained odata grouped result
-       * @param callback function do somthing
-       */
+     * Internal function for execute callback function for each property of object
+     * @param object object contained odata grouped result
+     * @param callback function do somthing
+     */
     private iterateObject;
     /**
-       * Prepeare grouped data
-       * @param rowData array odata result
-       * @param field grouping field
-       */
+     * Prepeare grouped data
+     * @param rowData array odata result
+     * @param field grouping field
+     */
     private groupBy;
     /**
-       * Calculate total count records in group
-       * @param rowData array odata result data
-       * @param countField field contained count of all records
-       */
+     * Calculate total count records in group
+     * @param rowData array odata result data
+     * @param countField field contained count of all records
+     */
     private aggregateList;
     /**
        * Calculate distinct values for input field from Odata api
@@ -254,33 +254,33 @@ export declare class OdataProvider implements OdataProviderOptions {
        */
     getFilterValuesParams: (field: string, callback: (data: any[]) => void) => void;
     /**
-       * Detect is string value
-       * @param value
-       */
+     * Detect is string value
+     * @param value
+     */
     isStrVal: (value: any) => boolean;
     /**
-       * Extartc values from odata response
-       * @param response
-       */
+     * Extartc values from odata response
+     * @param response
+     */
     private getOdataResult;
     /**
-       * Endocing column name to odata notation
-       * @param colName column name
-       */
+     * Endocing column name to odata notation
+     * @param colName column name
+     */
     private getWrapColumnName;
     /**
-       * grid calls this to get rows
-       * @param params ag-grid details for the request
-       */
+     * grid calls this to get rows
+     * @param params ag-grid details for the request
+     */
     getRows: (params: IGetRowsParams | IServerSideGetRowsParams) => void;
     /**
-       * Generate odata options for build query from ag-grid request
-       * @param params ag-grid details for the request
-       */
+     * Generate odata options for build query from ag-grid request
+     * @param params ag-grid details for the request
+     */
     getOdataOptions: (params: IGetRowsParams | IServerSideGetRowsParams) => OdataQueryExtendFull;
     /**
-       * Generate odata query from ag-grid request
-       * @param params ag-grid details for the request
-       */
+     * Generate odata query from ag-grid request
+     * @param params ag-grid details for the request
+     */
     getOdataQuery: (params: IGetRowsParams | IServerSideGetRowsParams) => string;
 }

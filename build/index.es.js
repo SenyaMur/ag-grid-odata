@@ -56,6 +56,9 @@ function __generator(thisArg, body) {
     }
 }
 
+function replaceAll(str, search, replacement) {
+    return str.replace(new RegExp(search, "g"), replacement);
+}
 var OdataProvider = /** @class */ (function () {
     function OdataProvider(options) {
         var _this = this;
@@ -63,7 +66,7 @@ var OdataProvider = /** @class */ (function () {
          * Name of field contain count of record results in grouping odata query
          * @default childCount
          */
-        this.groupCountFieldName = 'childCount';
+        this.groupCountFieldName = "childCount";
         /**
          * Use in odata build query
          * @default false
@@ -75,9 +78,13 @@ var OdataProvider = /** @class */ (function () {
             equals: function (col, value1) { return col + " eq " + value1; },
             notEqual: function (col, value1) { return col + " ne " + value1; },
             lessThan: function (col, value1) { return col + " lt " + value1; },
-            lessThanOrEqual: function (col, value1) { return col + " le " + value1; },
+            lessThanOrEqual: function (col, value1) {
+                return col + " le " + value1;
+            },
             greaterThan: function (col, value1) { return col + " gt " + value1; },
-            greaterThanOrEqual: function (col, value1) { return col + " ge " + value1; },
+            greaterThanOrEqual: function (col, value1) {
+                return col + " ge " + value1;
+            },
             inRange: function (col, value1, value2) {
                 return "(" + col + " ge " + value1 + " and " + col + " le " + value2 + ")";
             },
@@ -105,48 +112,60 @@ var OdataProvider = /** @class */ (function () {
                     .map(function (x) { return "'" + _this.ifTolower(x, isCaseSensitiveStringFilter) + "'"; })
                     .join() + ")";
             },
-            in: function (col, values) { return col + " in (" + values.map(function (x) { return "" + x; }).join() + ")"; },
+            in: function (col, values) {
+                return col + " in (" + values.map(function (x) { return "" + x; }).join() + ")";
+            },
             notIn: function (col, values) {
                 return "not (" + col + " in (" + values.map(function (x) { return "" + x; }).join() + "))";
             },
             // Date
-            trunc: function (col) { return "date(" + col + ")"; }
+            trunc: function (col) { return "date(" + col + ")"; },
         };
         /**
-          * Apply tolower for column in odata syntax
-          * @param col column name
-          * @param isCaseSensitiveStringFilter need apply tolower
-          */
+         * Apply tolower for column in odata syntax
+         * @param col column name
+         * @param isCaseSensitiveStringFilter need apply tolower
+         */
         this.ifTolowerCol = function (col, isCaseSensitiveStringFilter) {
             return isCaseSensitiveStringFilter ? col : "tolower(" + col + ")";
         };
         /**
-           *
-           * @param value string value
-           * @param isCaseSensitiveStringFilter  need apply tolower
-           */
+         *
+         * @param value string value
+         * @param isCaseSensitiveStringFilter  need apply tolower
+         */
         this.ifTolower = function (value, isCaseSensitiveStringFilter) {
             return isCaseSensitiveStringFilter ? value : value ? value.toLowerCase() : value;
         };
         /**
-           * Odata aggregation operations
-           */
+         * Odata aggregation operations
+         */
         this.odataAggregation = {
             // Logical
-            sum: function (col, asField) { return col + " with sum as " + (col || asField); },
-            min: function (col, asField) { return col + " with min as " + (col || asField); },
-            max: function (col, asField) { return col + " with max as " + (col || asField); },
-            avg: function (col, asField) { return col + " with average as " + (col || asField); },
-            count: function (col, asField) { return "$count as " + (col || asField); }
+            sum: function (col, asField) {
+                return col + " with sum as " + (col || asField);
+            },
+            min: function (col, asField) {
+                return col + " with min as " + (col || asField);
+            },
+            max: function (col, asField) {
+                return col + " with max as " + (col || asField);
+            },
+            avg: function (col, asField) {
+                return col + " with average as " + (col || asField);
+            },
+            count: function (col, asField) {
+                return "$count as " + (col || asField);
+            },
         };
         /**
-           * Odata query builder
-           * @param options parameter for odata query
-           */
+         * Odata query builder
+         * @param options parameter for odata query
+         */
         this.toQuery = function (options) {
             var path = [];
             if (options.count) {
-                path.push('$count=true');
+                path.push("$count=true");
             }
             if (options.skip) {
                 path.push("$skip=" + options.skip);
@@ -155,72 +174,74 @@ var OdataProvider = /** @class */ (function () {
                 path.push("$top=" + options.top);
             }
             if (options.sort && options.sort.length > 0) {
-                path.push('$orderby=' + options.sort.join(','));
+                path.push("$orderby=" + options.sort.join(","));
             }
             if (options.filter && options.filter.length > 0) {
-                path.push('$filter=' + options.filter.join(' and '));
+                path.push("$filter=" + options.filter.join(" and "));
             }
             if (options.apply && options.apply.length > 0) {
-                path.push('$apply=' + options.apply.join('/'));
+                path.push("$apply=" + options.apply.join("/"));
             }
             if (options.expand && options.expand.length > 0) {
-                path.push('$expand=' + options.expand.join(','));
+                path.push("$expand=" + options.expand.join(","));
             }
-            var query = '';
+            var query = "";
             if (path.length > 0) {
-                query = '?' + path.join('&');
+                query = "?" + path.join("&");
             }
             return query;
         };
         /**
-           * Add quotes for string value
-           * @param value string value
-           */
-        this.encode = function (value) { return (_this.isStrVal(value) ? value.replace("'", "''") : value); };
+         * Add quotes for string value
+         * @param value string value
+         */
+        this.encode = function (value) {
+            return _this.isStrVal(value) ? replaceAll(value, "'", "''") : value;
+        };
         /**
-           * Conctat to date a time for create datetime format for odata query
-           * @param value date string
-           */
+         * Conctat to date a time for create datetime format for odata query
+         * @param value date string
+         */
         this.toDateTime = function (value) { return value + "T00:00:00.000Z"; };
         /**
-           * Convert ag-grid column filter to odata query
-           * @param colName columnName
-           * @param col ag-grid column
-           */
+         * Convert ag-grid column filter to odata query
+         * @param colName columnName
+         * @param col ag-grid column
+         */
         this.getFilterOdata = function (colName, col) {
-            colName = colName.replace('.', '/');
+            colName = replaceAll(colName, ".", "/");
             var me = _this;
             colName = me.getWrapColumnName(colName);
             switch (col.filterType) {
-                case 'number':
+                case "number":
                     return me.odataOperator[col.type](colName, col.filter, col.filterTo);
-                case 'text': {
+                case "text": {
                     var operatorName = col.type;
                     var filter = me.encode(col.filter);
                     // let filterTo = me.encode(col.filterTo);
-                    if ((operatorName === 'equals' || operatorName === 'notEqual') &&
+                    if ((operatorName === "equals" || operatorName === "notEqual") &&
                         !me.isCaseSensitiveStringFilter) {
-                        operatorName += 'Str';
+                        operatorName += "Str";
                     }
                     return me.odataOperator[operatorName](colName, "'" + filter + "'", me.isCaseSensitiveStringFilter);
                 }
-                case 'date':
+                case "date":
                     return me.odataOperator[col.type](colName, "" + me.toDateTime(col.dateFrom), "" + me.toDateTime(col.dateTo));
-                case 'set':
+                case "set":
                     return col.values.length > 0
                         ? me.odataOperator.inStr(colName, col.values, _this.isCaseSensitiveStringFilter)
-                        : '';
+                        : "";
             }
-            return '';
+            return "";
         };
         /**
-           * Caclulate pivot data for ag-grid from odata
-           * @param pivotCols pivot columns
-           * @param rowGroupCols row group columns
-           * @param valueCols value columns
-           * @param data odata result
-           * @param countField count field name
-           */
+         * Caclulate pivot data for ag-grid from odata
+         * @param pivotCols pivot columns
+         * @param rowGroupCols row group columns
+         * @param valueCols value columns
+         * @param data odata result
+         * @param countField count field name
+         */
         this.getPivot = function (pivotCols, rowGroupCols, valueCols, data, countField) {
             // assume 1 pivot col and 1 value col for this example
             var pivotData = [];
@@ -239,7 +260,7 @@ var OdataProvider = /** @class */ (function () {
                         pivotValues.push(pivotValue.toString());
                     }
                     else {
-                        pivotValues.push('-');
+                        pivotValues.push("-");
                     }
                 });
                 // var pivotValue = item[pivotField].toString();
@@ -268,7 +289,7 @@ var OdataProvider = /** @class */ (function () {
                 var newCol = {
                     id: colKey,
                     field: colKey,
-                    aggFunc: valueCol.aggFunc
+                    aggFunc: valueCol.aggFunc,
                 };
                 aggColsList.push(newCol);
             }
@@ -283,7 +304,7 @@ var OdataProvider = /** @class */ (function () {
                         groupColDef = {
                             groupId: colKey,
                             headerName: pivotValue,
-                            children: []
+                            children: [],
                         };
                         secondaryColDefsMap[colKey] = groupColDef;
                         if (parentGroup) {
@@ -297,33 +318,33 @@ var OdataProvider = /** @class */ (function () {
                 });
                 parentGroup.children.push({
                     colId: colKey,
-                    headerName: valueCol.aggFunc + '(' + valueCol.displayName + ')',
+                    headerName: valueCol.aggFunc + "(" + valueCol.displayName + ")",
                     field: colKey,
                     suppressMenu: true,
-                    sortable: false
+                    sortable: false,
                 });
             }
             function createColKey(pivotValues, valueField) {
-                var result = pivotValues.join('|');
+                var result = pivotValues.join("|");
                 if (valueField !== undefined) {
-                    result += '|' + valueField;
+                    result += "|" + valueField;
                 }
-                result = result.replace('.', '*');
+                result = replaceAll(result, ".", "*");
                 return result;
             }
             return {
                 data: pivotData,
                 aggCols: aggColsList,
-                secondaryColDefs: secondaryColDefs
+                secondaryColDefs: secondaryColDefs,
             };
         };
         /**
-           *
-           * @param rowData array odata result
-           * @param rowGroupCols row group columns
-           * @param groupKeys what groups the user is viewing
-           * @param countField count field name
-           */
+         *
+         * @param rowData array odata result
+         * @param rowGroupCols row group columns
+         * @param groupKeys what groups the user is viewing
+         * @param countField count field name
+         */
         this.buildGroupsFromData = function (rowData, rowGroupCols, groupKeys, countField) {
             var me = _this;
             var rowGroupCol = rowGroupCols[groupKeys.length];
@@ -338,10 +359,10 @@ var OdataProvider = /** @class */ (function () {
             return groups;
         };
         /**
-           * Internal function for execute callback function for each property of object
-           * @param object object contained odata grouped result
-           * @param callback function do somthing
-           */
+         * Internal function for execute callback function for each property of object
+         * @param object object contained odata grouped result
+         * @param callback function do somthing
+         */
         this.iterateObject = function (object, callback) {
             if (!object) {
                 return;
@@ -354,10 +375,10 @@ var OdataProvider = /** @class */ (function () {
             }
         };
         /**
-           * Prepeare grouped data
-           * @param rowData array odata result
-           * @param field grouping field
-           */
+         * Prepeare grouped data
+         * @param rowData array odata result
+         * @param field grouping field
+         */
         this.groupBy = function (rowData, field) {
             var result = {};
             rowData.forEach(function (item) {
@@ -372,10 +393,10 @@ var OdataProvider = /** @class */ (function () {
             return result;
         };
         /**
-           * Calculate total count records in group
-           * @param rowData array odata result data
-           * @param countField field contained count of all records
-           */
+         * Calculate total count records in group
+         * @param rowData array odata result data
+         * @param countField field contained count of all records
+         */
         this.aggregateList = function (rowData, countField) {
             var result = {};
             rowData.forEach(function (row) {
@@ -426,7 +447,7 @@ var OdataProvider = /** @class */ (function () {
         this.getFilterValuesParams = function (field, callback) {
             var me = _this;
             me.callApi(me.toQuery({
-                apply: ["groupby((" + me.getWrapColumnName(field) + "))"]
+                apply: ["groupby((" + me.getWrapColumnName(field) + "))"],
             })).then(function (x) {
                 if (x) {
                     var values = me.getOdataResult(x);
@@ -435,29 +456,35 @@ var OdataProvider = /** @class */ (function () {
             });
         };
         /**
-           * Detect is string value
-           * @param value
-           */
-        this.isStrVal = function (value) { return (typeof value) === "string"; };
+         * Detect is string value
+         * @param value
+         */
+        this.isStrVal = function (value) { return typeof value === "string"; };
         /**
-           * Extartc values from odata response
-           * @param response
-           */
-        this.getOdataResult = function (response) { return Array.isArray(response) ? response : response.value; };
+         * Extartc values from odata response
+         * @param response
+         */
+        this.getOdataResult = function (response) {
+            return Array.isArray(response) ? response : response.value;
+        };
         /**
-           * Endocing column name to odata notation
-           * @param colName column name
-           */
-        this.getWrapColumnName = function (colName) { return colName.replace('.', '/'); };
+         * Endocing column name to odata notation
+         * @param colName column name
+         */
+        this.getWrapColumnName = function (colName) {
+            return colName.replace(".", "/");
+        };
         /**
-           * grid calls this to get rows
-           * @param params ag-grid details for the request
-           */
+         * grid calls this to get rows
+         * @param params ag-grid details for the request
+         */
         this.getRows = function (params) {
             var me = _this;
             var childCount = me.groupCountFieldName;
-            var isServerMode = 'request' in params;
-            var request = isServerMode ? params.request : params;
+            var isServerMode = "request" in params;
+            var request = isServerMode
+                ? params.request
+                : params;
             var requestSrv = request;
             var pivotActive = !isServerMode
                 ? false
@@ -481,16 +508,16 @@ var OdataProvider = /** @class */ (function () {
                             values_1 = me.getOdataResult(x);
                             if (!!pivotActive) return [3 /*break*/, 2];
                             if (!options.apply) {
-                                params.successCallback(values_1, x['@odata.count']);
+                                params.successCallback(values_1, x["@odata.count"]);
                                 if (this.afterLoadData) {
-                                    this.afterLoadData(options, values_1, x['@odata.count']);
+                                    this.afterLoadData(options, values_1, x["@odata.count"]);
                                 }
                             }
                             else {
                                 count_1 = values_1.length;
                                 if (count_1 === options.top && options.skip === 0) {
                                     // Если мы получили группировку с числом экземпляров больше чем у мы запросили, то делаем запрос общего количества
-                                    me.callApi(query + '/aggregate($count as count)').then(function (y) {
+                                    me.callApi(query + "/aggregate($count as count)").then(function (y) {
                                         count_1 = me.getOdataResult(y)[0].count;
                                         params.successCallback(values_1, count_1);
                                     });
@@ -515,7 +542,7 @@ var OdataProvider = /** @class */ (function () {
                             _a.label = 3;
                         case 3:
                             if (!!eof) return [3 /*break*/, 5];
-                            options.skip += (options.top || 0);
+                            options.skip += options.top || 0;
                             subQuery = me.toQuery(options);
                             return [4 /*yield*/, me.callApi(subQuery)];
                         case 4:
@@ -538,7 +565,8 @@ var OdataProvider = /** @class */ (function () {
                                     ? null
                                     : rowData.length;
                             if (totalCount > (options.top || 0)) {
-                                serverSideBlock = params.parentNode.rowModel.rowNodeBlockLoader.blocks[0];
+                                serverSideBlock = params.parentNode.rowModel
+                                    .rowNodeBlockLoader.blocks[0];
                                 serverSideBlock.rowNodeCacheParams.blockSize = totalCount;
                                 serverSideBlock.endRow = serverSideBlock.startRow + totalCount;
                                 serverSideBlock.createRowNodes();
@@ -565,14 +593,16 @@ var OdataProvider = /** @class */ (function () {
             });
         };
         /**
-           * Generate odata options for build query from ag-grid request
-           * @param params ag-grid details for the request
-           */
+         * Generate odata options for build query from ag-grid request
+         * @param params ag-grid details for the request
+         */
         this.getOdataOptions = function (params) {
             var me = _this;
             var options = {};
-            var isServerMode = 'request' in params;
-            var request = isServerMode ? params.request : params;
+            var isServerMode = "request" in params;
+            var request = isServerMode
+                ? params.request
+                : params;
             var childCount = me.groupCountFieldName;
             if (_this.beforeRequest) {
                 _this.beforeRequest(options, _this, request);
@@ -582,8 +612,8 @@ var OdataProvider = /** @class */ (function () {
                 for (var i = 0; i < request.sortModel.length; i++) {
                     var col = request.sortModel[i];
                     var colName = me.getWrapColumnName(col.colId);
-                    if (col.sort !== 'asc') {
-                        colName += ' desc';
+                    if (col.sort !== "asc") {
+                        colName += " desc";
                     }
                     sort.push(colName);
                 }
@@ -593,7 +623,7 @@ var OdataProvider = /** @class */ (function () {
             for (var colName in request.filterModel) {
                 if (request.filterModel.hasOwnProperty(colName)) {
                     var col = request.filterModel[colName];
-                    var colFilter = '';
+                    var colFilter = "";
                     if (!col.operator) {
                         colFilter = me.getFilterOdata(colName, col);
                         if (colFilter) {
@@ -614,21 +644,24 @@ var OdataProvider = /** @class */ (function () {
             var apply = options.apply || [];
             if (isServerMode) {
                 var requestSrv = request;
-                pivotActive = requestSrv.pivotMode &&
-                    requestSrv.pivotCols.length > 0 &&
-                    requestSrv.valueCols.length > 0;
+                pivotActive =
+                    requestSrv.pivotMode &&
+                        requestSrv.pivotCols.length > 0 &&
+                        requestSrv.valueCols.length > 0;
                 if (requestSrv.rowGroupCols.length > 0) {
                     var filterGroupBy = [];
                     if (requestSrv.groupKeys.length < requestSrv.rowGroupCols.length) {
                         // If request only groups
                         for (var idx = 0; idx < requestSrv.groupKeys.length; idx++) {
                             var colValue = requestSrv.groupKeys[idx];
-                            var condition = me.getWrapColumnName(requestSrv.rowGroupCols[idx].field) + " eq " + ((me.isStrVal(colValue) ? "'" : "") + me.encode(colValue) + (me.isStrVal(colValue) ? "'" : ""));
+                            var condition = me.getWrapColumnName(requestSrv.rowGroupCols[idx].field) + " eq " + ((me.isStrVal(colValue) ? "'" : "") +
+                                me.encode(colValue) +
+                                (me.isStrVal(colValue) ? "'" : ""));
                             filterGroupBy.push(condition);
                         }
                         if (filterGroupBy.length > 0 || filter.length > 0) {
                             // Filters must by first
-                            apply.push("filter(" + filterGroupBy.concat(filter).join(' and ') + ")");
+                            apply.push("filter(" + filterGroupBy.concat(filter).join(" and ") + ")");
                         }
                         var aggregate = [];
                         if (childCount) {
@@ -640,9 +673,11 @@ var OdataProvider = /** @class */ (function () {
                                 aggregate.push(me.odataAggregation[colValue.aggFunc](me.getWrapColumnName(colValue.field)));
                             }
                         }
-                        var groups = [me.getWrapColumnName(requestSrv.rowGroupCols[requestSrv.groupKeys.length].field)];
+                        var groups = [
+                            me.getWrapColumnName(requestSrv.rowGroupCols[requestSrv.groupKeys.length].field),
+                        ];
                         var sort_1 = options.sort || [];
-                        var sortColOnly_1 = sort_1.map(function (x) { return x.split(' ')[0]; });
+                        var sortColOnly_1 = sort_1.map(function (x) { return x.split(" ")[0]; });
                         if (pivotActive) {
                             groups = groups.concat(requestSrv.pivotCols.map(function (x) { return me.getWrapColumnName(x.field); }));
                             groups.forEach(function (x) {
@@ -652,7 +687,7 @@ var OdataProvider = /** @class */ (function () {
                             });
                         }
                         options.sort = sort_1;
-                        apply.push("groupby((" + groups.join(',') + ")" + (aggregate.length > 0 ? ",aggregate(" + aggregate.join(',') + ")" : '') + ")");
+                        apply.push("groupby((" + groups.join(",") + ")" + (aggregate.length > 0 ? ",aggregate(" + aggregate.join(",") + ")" : "") + ")");
                         options.apply = apply;
                         delete options.sort;
                     }
@@ -660,7 +695,9 @@ var OdataProvider = /** @class */ (function () {
                         // If request rowData by group filter
                         for (var idx = 0; idx < requestSrv.groupKeys.length; idx++) {
                             var colValue = requestSrv.groupKeys[idx];
-                            var condition = me.getWrapColumnName(requestSrv.rowGroupCols[idx].field) + " eq " + ((me.isStrVal(colValue) ? "'" : "") + me.encode(colValue) + (me.isStrVal(colValue) ? "'" : ""));
+                            var condition = me.getWrapColumnName(requestSrv.rowGroupCols[idx].field) + " eq " + ((me.isStrVal(colValue) ? "'" : "") +
+                                me.encode(colValue) +
+                                (me.isStrVal(colValue) ? "'" : ""));
                             filter.push(condition);
                         }
                     }
@@ -683,28 +720,29 @@ var OdataProvider = /** @class */ (function () {
             return options;
         };
         /**
-           * Generate odata query from ag-grid request
-           * @param params ag-grid details for the request
-           */
-        this.getOdataQuery = function (params) { return _this.toQuery(_this.getOdataOptions(params)); };
+         * Generate odata query from ag-grid request
+         * @param params ag-grid details for the request
+         */
+        this.getOdataQuery = function (params) {
+            return _this.toQuery(_this.getOdataOptions(params));
+        };
         Object.assign(this, options);
         if (this.callApi == null) {
-            throw new Error('callApi must be specified');
+            throw new Error("callApi must be specified");
         }
-        if (typeof this.callApi !== 'function') {
-            throw new Error('callApi must be a function');
+        if (typeof this.callApi !== "function") {
+            throw new Error("callApi must be a function");
         }
         if (this.beforeRequest != null &&
-            typeof this.beforeRequest !== 'function') {
-            throw new Error('beforeRequest must be a function');
+            typeof this.beforeRequest !== "function") {
+            throw new Error("beforeRequest must be a function");
         }
         if (this.afterLoadData != null &&
-            typeof this.afterLoadData !== 'function') {
-            throw new Error('afterLoadData must be a function');
+            typeof this.afterLoadData !== "function") {
+            throw new Error("afterLoadData must be a function");
         }
-        if (this.setError != null &&
-            typeof this.setError !== 'function') {
-            throw new Error('setError must be a function');
+        if (this.setError != null && typeof this.setError !== "function") {
+            throw new Error("setError must be a function");
         }
     }
     return OdataProvider;
