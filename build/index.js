@@ -79,6 +79,17 @@ var OdataProvider = /** @class */ (function () {
          * @default false
          */
         this.isCaseSensitiveStringFilter = false;
+        /**Creator a cancelable Promise */
+        this.createCancelablePromise = function () {
+            var cancel;
+            var pr = new Promise(function (_, reject) {
+                cancel = reject;
+            }).catch(function () { });
+            return {
+                promise: pr,
+                cancel: cancel,
+            };
+        };
         /**Odata query operations */
         this.odataOperator = {
             // Logical
@@ -503,7 +514,14 @@ var OdataProvider = /** @class */ (function () {
             }
             var options = me.getOdataOptions(params);
             var query = me.toQuery(options);
-            me.callApi(query).then(function (x) { return __awaiter(_this, void 0, void 0, function () {
+            if (options.skip === 0 &&
+                (!isServerMode ||
+                    (isServerMode &&
+                        params.parentNode.level === -1))) {
+                me.cancelPromice.cancel();
+                me.cancelPromice = me.createCancelablePromise();
+            }
+            Promise.race([me.cancelPromice.promise, me.callApi(query)]).then(function (x) { return __awaiter(_this, void 0, void 0, function () {
                 var values_1, count_1, rowData, eof, subQuery, newRowData, pivotResult, secondaryColDefs, totalCount, serverSideBlock;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
@@ -751,6 +769,7 @@ var OdataProvider = /** @class */ (function () {
         if (this.setError != null && typeof this.setError !== "function") {
             throw new Error("setError must be a function");
         }
+        this.cancelPromice = this.createCancelablePromise();
     }
     return OdataProvider;
 }());

@@ -60,6 +60,10 @@ export declare class OdataProviderOptions {
      */
     setError?: (error: any) => void;
 }
+declare interface CancelablePromise {
+    promise: Promise<any>;
+    cancel: () => void;
+}
 export declare class OdataProvider implements OdataProviderOptions {
     /**
      * Function for call odata api
@@ -118,7 +122,10 @@ export declare class OdataProvider implements OdataProviderOptions {
      * Callback for catch error
      */
     setError: (error: any) => void;
+    cancelPromice: CancelablePromise;
     constructor(options: OdataProviderOptions);
+    /**Creator a cancelable Promise */
+    createCancelablePromise: () => CancelablePromise;
     /**Odata query operations */
     odataOperator: {
         equals: (col: string, value1: string) => string;
@@ -284,3 +291,4 @@ export declare class OdataProvider implements OdataProviderOptions {
      */
     getOdataQuery: (params: IGetRowsParams | IServerSideGetRowsParams) => string;
 }
+export {};

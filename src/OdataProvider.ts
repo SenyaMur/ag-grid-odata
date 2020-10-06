@@ -90,6 +90,11 @@ function replaceAll(str: string, search: string, replacement: string): string {
   return str.replace(new RegExp(escapeRegExp(search), "g"), replacement);
 }
 
+declare interface CancelablePromise {
+  promise: Promise<any>;
+  cancel: () => void;
+}
+
 export class OdataProvider implements OdataProviderOptions {
   /**
    * Function for call odata api
@@ -158,6 +163,7 @@ export class OdataProvider implements OdataProviderOptions {
    * Callback for catch error
    */
   setError: (error: any) => void;
+  cancelPromice: CancelablePromise;
   constructor(options: OdataProviderOptions) {
     Object.assign(this, options);
     if (this.callApi == null) {
@@ -181,7 +187,20 @@ export class OdataProvider implements OdataProviderOptions {
     if (this.setError != null && typeof this.setError !== "function") {
       throw new Error("setError must be a function");
     }
+    this.cancelPromice = this.createCancelablePromise();
   }
+
+  /**Creator a cancelable Promise */
+  createCancelablePromise = (): CancelablePromise => {
+    let cancel;
+    const pr = new Promise((_, reject) => {
+      cancel = reject;
+    }).catch(() => {});
+    return {
+      promise: pr,
+      cancel,
+    };
+  };
   /**Odata query operations */
   odataOperator = {
     // Logical
@@ -693,7 +712,16 @@ export class OdataProvider implements OdataProviderOptions {
     }
     const options = me.getOdataOptions(params);
     const query = me.toQuery(options);
-    me.callApi(query).then(
+    if (
+      options.skip === 0 &&
+      (!isServerMode ||
+        (isServerMode &&
+          (params as IServerSideGetRowsParams).parentNode.level === -1))
+    ) {
+      me.cancelPromice.cancel();
+      me.cancelPromice = me.createCancelablePromise();
+    }
+    Promise.race([me.cancelPromice.promise, me.callApi(query)]).then(
       async (x) => {
         if (!x) {
           params.failCallback();
