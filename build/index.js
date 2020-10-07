@@ -220,7 +220,11 @@ var OdataProvider = /** @class */ (function () {
          * Conctat to date a time for create datetime format for odata query
          * @param value date string
          */
-        this.toDateTime = function (value) { return value + "T00:00:00.000Z"; };
+        this.toDateTime = function (value) {
+            var dt = new Date(value);
+            var dt1 = new Date(Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate()));
+            return dt1.toISOString();
+        };
         /**
          * Convert ag-grid column filter to odata query
          * @param colName columnName

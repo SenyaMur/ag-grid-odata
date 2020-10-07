@@ -359,7 +359,13 @@ export class OdataProvider implements OdataProviderOptions {
    * Conctat to date a time for create datetime format for odata query
    * @param value date string
    */
-  toDateTime = (value: string): string => `${value}T00:00:00.000Z`;
+  toDateTime = (value: string): string => {
+    const dt = new Date(value);
+    const dt1 = new Date(
+      Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate())
+    );
+    return dt1.toISOString();
+  };
   /**
    * Convert ag-grid column filter to odata query
    * @param colName columnName
