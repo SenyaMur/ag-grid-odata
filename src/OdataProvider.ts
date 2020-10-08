@@ -361,6 +361,7 @@ export class OdataProvider implements OdataProviderOptions {
    */
   toDateTime = (value: string): string => {
     const dt = new Date(value);
+    if (isNaN(dt.getTime())) return "null";
     const dt1 = new Date(
       Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate())
     );

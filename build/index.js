@@ -222,6 +222,8 @@ var OdataProvider = /** @class */ (function () {
          */
         this.toDateTime = function (value) {
             var dt = new Date(value);
+            if (isNaN(dt.getTime()))
+                return "null";
             var dt1 = new Date(Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate()));
             return dt1.toISOString();
         };
