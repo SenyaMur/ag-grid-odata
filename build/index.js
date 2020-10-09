@@ -223,7 +223,7 @@ var OdataProvider = /** @class */ (function () {
         this.toDateTime = function (value) {
             var dt = new Date(value);
             if (isNaN(dt.getTime()))
-                return "null";
+                return null;
             var dt1 = new Date(Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate()));
             return dt1.toISOString();
         };
@@ -250,7 +250,11 @@ var OdataProvider = /** @class */ (function () {
                     return me.odataOperator[operatorName](colName, "'" + filter + "'", me.isCaseSensitiveStringFilter);
                 }
                 case "date":
-                    return me.odataOperator[col.type](colName, "" + me.toDateTime(col.dateFrom), "" + me.toDateTime(col.dateTo));
+                    if (col.dateFrom != null && me.toDateTime(col.dateFrom) != null &&
+                        (col.dateTo == null || (col.dateTo != null && me.toDateTime(col.dateTo) != null))) {
+                        return me.odataOperator[col.type](colName, "" + me.toDateTime(col.dateFrom), "" + me.toDateTime(col.dateTo));
+                    }
+                    break;
                 case "set":
                     return col.values.length > 0
                         ? me.odataOperator.inStr(colName, col.values, _this.isCaseSensitiveStringFilter)

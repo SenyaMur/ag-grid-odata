@@ -182,7 +182,7 @@ export declare class OdataProvider implements OdataProviderOptions {
      * Conctat to date a time for create datetime format for odata query
      * @param value date string
      */
-    toDateTime: (value: string) => string;
+    toDateTime: (value: string) => string | null;
     /**
      * Convert ag-grid column filter to odata query
      * @param colName columnName

@@ -359,9 +359,9 @@ export class OdataProvider implements OdataProviderOptions {
    * Conctat to date a time for create datetime format for odata query
    * @param value date string
    */
-  toDateTime = (value: string): string => {
+  toDateTime = (value: string): string | null => {
     const dt = new Date(value);
-    if (isNaN(dt.getTime())) return "null";
+    if (isNaN(dt.getTime())) return null;
     const dt1 = new Date(
       Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate())
     );
@@ -396,11 +396,15 @@ export class OdataProvider implements OdataProviderOptions {
         );
       }
       case "date":
-        return me.odataOperator[col.type](
-          colName,
-          `${me.toDateTime(col.dateFrom)}`,
-          `${me.toDateTime(col.dateTo)}`
-        );
+        if (col.dateFrom != null  && me.toDateTime(col.dateFrom) != null && 
+        (col.dateTo== null || (col.dateTo != null && me.toDateTime(col.dateTo) != null)) ){
+          return me.odataOperator[col.type](
+            colName,
+            `${me.toDateTime(col.dateFrom)}`,
+            `${me.toDateTime(col.dateTo)}`
+          );
+        }
+        break;
       case "set":
         return col.values.length > 0
           ? me.odataOperator.inStr(
