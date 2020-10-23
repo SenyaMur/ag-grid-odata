@@ -565,7 +565,7 @@ var OdataProvider = /** @class */ (function () {
                             }
                             return [3 /*break*/, 6];
                         case 2:
-                            rowData = x;
+                            rowData = me.getOdataResult(x);
                             if (!(rowData.length === options.top &&
                                 options.skip === 0 &&
                                 requestSrv.groupKeys.length === 0)) return [3 /*break*/, 5];

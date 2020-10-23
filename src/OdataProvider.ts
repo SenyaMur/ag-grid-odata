@@ -763,7 +763,7 @@ export class OdataProvider implements OdataProviderOptions {
               }
             }
           } else {
-            let rowData = x;
+            let rowData = me.getOdataResult(x);
             // Check count
             if (
               rowData.length === options.top &&
