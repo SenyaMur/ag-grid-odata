@@ -123,11 +123,11 @@ var OdataProvider = /** @class */ (function () {
             },
             inStr: function (col, values, isCaseSensitiveStringFilter) {
                 return _this.ifTolowerCol(col, isCaseSensitiveStringFilter) + " in (" + values
-                    .map(function (x) { return "'" + _this.ifTolower(x, isCaseSensitiveStringFilter) + "'"; })
+                    .map(function (x) { return "'" + _this.ifTolower(_this.encode(x), isCaseSensitiveStringFilter) + "'"; })
                     .join() + ")";
             },
             in: function (col, values) {
-                return col + " in (" + values.map(function (x) { return "" + x; }).join() + ")";
+                return col + " in (" + values.map(function (x) { return "" + _this.encode(x); }).join() + ")";
             },
             notIn: function (col, values) {
                 return "not (" + col + " in (" + values.map(function (x) { return "" + x; }).join() + "))";
@@ -617,10 +617,10 @@ var OdataProvider = /** @class */ (function () {
                     }
                 });
             }); }, function (err) {
+                params.successCallback([], 0);
                 if (_this.setError) {
-                    _this.setError(err);
+                    _this.setError(err, params);
                 }
-                // params.successCallback([], 0)
             });
         };
         /**

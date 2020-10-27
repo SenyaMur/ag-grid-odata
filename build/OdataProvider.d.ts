@@ -58,7 +58,7 @@ export declare class OdataProviderOptions {
     /**
      * Callback for catch error
      */
-    setError?: (error: any) => void;
+    setError?: (error: any, params: IGetRowsParams | IServerSideGetRowsParams) => void;
 }
 declare interface CancelablePromise {
     promise: Promise<any>;
@@ -121,7 +121,7 @@ export declare class OdataProvider implements OdataProviderOptions {
     /**
      * Callback for catch error
      */
-    setError: (error: any) => void;
+    setError: (error: any, params: IGetRowsParams | IServerSideGetRowsParams) => void;
     cancelPromice: CancelablePromise;
     constructor(options: OdataProviderOptions);
     /**Creator a cancelable Promise */

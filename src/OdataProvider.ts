@@ -81,7 +81,7 @@ export declare class OdataProviderOptions {
   /**
    * Callback for catch error
    */
-  setError?: (error: any) => void;
+  setError?: (error: any, params: IGetRowsParams | IServerSideGetRowsParams) => void;
 }
 function escapeRegExp(string) {
   return string.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
@@ -162,7 +162,7 @@ export class OdataProvider implements OdataProviderOptions {
   /**
    * Callback for catch error
    */
-  setError: (error: any) => void;
+  setError: (error: any, params: IGetRowsParams | IServerSideGetRowsParams) => void;
   cancelPromice: CancelablePromise;
   constructor(options: OdataProviderOptions) {
     Object.assign(this, options);
@@ -275,10 +275,10 @@ export class OdataProvider implements OdataProviderOptions {
       isCaseSensitiveStringFilter: boolean
     ): string =>
       `${this.ifTolowerCol(col, isCaseSensitiveStringFilter)} in (${values
-        .map((x) => `'${this.ifTolower(x, isCaseSensitiveStringFilter)}'`)
+        .map((x) => `'${this.ifTolower(this.encode(x), isCaseSensitiveStringFilter)}'`)
         .join()})`,
     in: (col: string, values: string[]) =>
-      `${col} in (${values.map((x) => `${x}`).join()})`,
+      `${col} in (${values.map((x) => `${this.encode(x)}`).join()})`,
     notIn: (col: string, values: string[]) =>
       `not (${col} in (${values.map((x) => `${x}`).join()}))`,
     // Date
@@ -827,10 +827,10 @@ export class OdataProvider implements OdataProviderOptions {
         }
       },
       (err) => {
+        params.successCallback([], 0)
         if (this.setError) {
-          this.setError(err);
+          this.setError(err,params);
         }
-        // params.successCallback([], 0)
       }
     );
   };
