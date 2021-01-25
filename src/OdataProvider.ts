@@ -953,7 +953,10 @@ export class OdataProvider implements OdataProviderOptions {
           );
 
           options.apply = apply;
-          delete options.sort;
+          if (options.sort && options.sort.length> 0){
+            options.sort = options.sort.filter(x=>groups.indexOf(x.split(' ')[0]) >=0);
+          }
+          // delete options.sort;
         } else {
           // If request rowData by group filter
           for (let idx = 0; idx < requestSrv.groupKeys.length; idx++) {
