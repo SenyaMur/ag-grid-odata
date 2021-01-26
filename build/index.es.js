@@ -704,23 +704,26 @@ var OdataProvider = /** @class */ (function () {
                                 aggregate.push(me.odataAggregation[colValue.aggFunc](me.getWrapColumnName(colValue.field)));
                             }
                         }
-                        var groups = [
+                        var groups_1 = [
                             me.getWrapColumnName(requestSrv.rowGroupCols[requestSrv.groupKeys.length].field),
                         ];
                         var sort_1 = options.sort || [];
                         var sortColOnly_1 = sort_1.map(function (x) { return x.split(" ")[0]; });
                         if (pivotActive) {
-                            groups = groups.concat(requestSrv.pivotCols.map(function (x) { return me.getWrapColumnName(x.field); }));
-                            groups.forEach(function (x) {
+                            groups_1 = groups_1.concat(requestSrv.pivotCols.map(function (x) { return me.getWrapColumnName(x.field); }));
+                            groups_1.forEach(function (x) {
                                 if (sortColOnly_1.indexOf(x) < 0) {
                                     sort_1.push(x);
                                 }
                             });
                         }
                         options.sort = sort_1;
-                        apply.push("groupby((" + groups.join(",") + ")" + (aggregate.length > 0 ? ",aggregate(" + aggregate.join(",") + ")" : "") + ")");
+                        apply.push("groupby((" + groups_1.join(",") + ")" + (aggregate.length > 0 ? ",aggregate(" + aggregate.join(",") + ")" : "") + ")");
                         options.apply = apply;
-                        delete options.sort;
+                        if (options.sort && options.sort.length > 0) {
+                            options.sort = options.sort.filter(function (x) { return groups_1.indexOf(x.split(' ')[0]) >= 0; });
+                        }
+                        // delete options.sort;
                     }
                     else {
                         // If request rowData by group filter
