@@ -190,6 +190,12 @@ export declare class OdataProvider implements OdataProviderOptions {
      */
     private getFilterOdata;
     /**
+     * Extract value from record by path to field
+     * @param field path to column value
+     * @param obj  record
+     */
+    private getValue;
+    /**
      * Caclulate pivot data for ag-grid from odata
      * @param pivotCols pivot columns
      * @param rowGroupCols row group columns

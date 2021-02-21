@@ -420,6 +420,22 @@ export class OdataProvider implements OdataProviderOptions {
   };
 
   /**
+   * Extract value from record by path to field
+   * @param field path to column value 
+   * @param obj  record
+   */
+  private getValue(field: string, obj : any): any{
+    const paths = field.split('.');
+    if (paths.length === 1){
+      return obj[field]
+    }else{
+      return paths.reduce((object, path) => {
+        return (object || {})[path]; // Oliver Steele's pattern
+    }, obj)
+    }
+  }
+
+  /**
    * Caclulate pivot data for ag-grid from odata
    * @param pivotCols pivot columns
    * @param rowGroupCols row group columns
@@ -435,7 +451,7 @@ export class OdataProvider implements OdataProviderOptions {
     countField: string
   ): PivotResultDat => {
     // assume 1 pivot col and 1 value col for this example
-
+    const me = this;
     const pivotData: any[] = [];
     const aggColsList: any[] = [];
 
@@ -448,7 +464,7 @@ export class OdataProvider implements OdataProviderOptions {
       var pivotValues: string[] = [];
       pivotCols.forEach(function (pivotCol) {
         var pivotField = pivotCol.id;
-        var pivotValue = item[pivotField];
+        var pivotValue = me.getValue(pivotField, item);
         if (
           pivotValue !== null &&
           pivotValue !== undefined &&
@@ -467,7 +483,7 @@ export class OdataProvider implements OdataProviderOptions {
         var valField = valueCol.id;
         var colKey = createColKey(pivotValues, valField);
 
-        var value = item[valField];
+        var value = me.getValue(valField, item);
         pivotItem[colKey] = value;
 
         if (!colKeyExistsMap[colKey]) {
@@ -477,11 +493,11 @@ export class OdataProvider implements OdataProviderOptions {
         }
       });
       if (countField) {
-        pivotItem[countField] = item[countField];
+        pivotItem[countField] = me.getValue(countField, item);
       }
 
       rowGroupCols.forEach(function (rowGroupCol) {
-        var rowGroupField = rowGroupCol.id;
+        var rowGroupField = rowGroupCol.id.split('.')[0];
         pivotItem[rowGroupField] = item[rowGroupField];
       });
 
@@ -601,8 +617,9 @@ export class OdataProvider implements OdataProviderOptions {
    */
   private groupBy = (rowData: any[], field: string): any => {
     var result = {};
+    const me = this;
     rowData.forEach(function (item) {
-      var key = item[field];
+      var key = me.getValue(field, item);
       var listForThisKey = result[key];
       if (!listForThisKey) {
         listForThisKey = [];
@@ -697,8 +714,8 @@ export class OdataProvider implements OdataProviderOptions {
    * Endocing column name to odata notation
    * @param colName column name
    */
-  private getWrapColumnName = (colName: string): string =>
-    replaceAll(colName, ".", "/");
+  private getWrapColumnName = (colName: string | undefined): string =>
+    colName ? replaceAll(colName, ".", "/") : '';
   /**
    * grid calls this to get rows
    * @param params ag-grid details for the request
@@ -804,13 +821,13 @@ export class OdataProvider implements OdataProviderOptions {
                 : rowData.length === options.top
                 ? null
                 : rowData.length;
-            if (totalCount > (options.top || 0)) {
-              const serverSideBlock = (params as any).parentNode.rowModel
-                .rowNodeBlockLoader.blocks[0];
-              serverSideBlock.rowNodeCacheParams.blockSize = totalCount;
-              serverSideBlock.endRow = serverSideBlock.startRow + totalCount;
-              serverSideBlock.createRowNodes();
-            }
+            // if (totalCount > (options.top || 0)) {
+            //   const serverSideBlock = (params as any).parentNode.rowModel
+            //     .rowNodeBlockLoader.blocks[0];
+            //   serverSideBlock.rowNodeCacheParams.blockSize = totalCount;
+            //   serverSideBlock.endRow = serverSideBlock.startRow + totalCount;
+            //   serverSideBlock.createRowNodes();
+            // }
             params.successCallback(rowData, totalCount);
             if (this.afterLoadData) {
               this.afterLoadData(options, rowData, totalCount);
@@ -921,7 +938,7 @@ export class OdataProvider implements OdataProviderOptions {
           if (requestSrv.valueCols.length > 0) {
             for (let idx = 0; idx < requestSrv.valueCols.length; idx++) {
               const colValue = requestSrv.valueCols[idx];
-              aggregate.push(
+              colValue.aggFunc && aggregate.push(
                 me.odataAggregation[colValue.aggFunc](
                   me.getWrapColumnName(colValue.field)
                 )

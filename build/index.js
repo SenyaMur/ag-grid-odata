@@ -272,6 +272,7 @@ var OdataProvider = /** @class */ (function () {
          */
         this.getPivot = function (pivotCols, rowGroupCols, valueCols, data, countField) {
             // assume 1 pivot col and 1 value col for this example
+            var me = _this;
             var pivotData = [];
             var aggColsList = [];
             var colKeyExistsMap = {};
@@ -281,7 +282,7 @@ var OdataProvider = /** @class */ (function () {
                 var pivotValues = [];
                 pivotCols.forEach(function (pivotCol) {
                     var pivotField = pivotCol.id;
-                    var pivotValue = item[pivotField];
+                    var pivotValue = me.getValue(pivotField, item);
                     if (pivotValue !== null &&
                         pivotValue !== undefined &&
                         pivotValue.toString) {
@@ -296,7 +297,7 @@ var OdataProvider = /** @class */ (function () {
                 valueCols.forEach(function (valueCol) {
                     var valField = valueCol.id;
                     var colKey = createColKey(pivotValues, valField);
-                    var value = item[valField];
+                    var value = me.getValue(valField, item);
                     pivotItem[colKey] = value;
                     if (!colKeyExistsMap[colKey]) {
                         addNewAggCol(colKey, valueCol);
@@ -305,10 +306,10 @@ var OdataProvider = /** @class */ (function () {
                     }
                 });
                 if (countField) {
-                    pivotItem[countField] = item[countField];
+                    pivotItem[countField] = me.getValue(countField, item);
                 }
                 rowGroupCols.forEach(function (rowGroupCol) {
-                    var rowGroupField = rowGroupCol.id;
+                    var rowGroupField = rowGroupCol.id.split('.')[0];
                     pivotItem[rowGroupField] = item[rowGroupField];
                 });
                 pivotData.push(pivotItem);
@@ -409,8 +410,9 @@ var OdataProvider = /** @class */ (function () {
          */
         this.groupBy = function (rowData, field) {
             var result = {};
+            var me = _this;
             rowData.forEach(function (item) {
-                var key = item[field];
+                var key = me.getValue(field, item);
                 var listForThisKey = result[key];
                 if (!listForThisKey) {
                     listForThisKey = [];
@@ -500,7 +502,7 @@ var OdataProvider = /** @class */ (function () {
          * @param colName column name
          */
         this.getWrapColumnName = function (colName) {
-            return replaceAll(colName, ".", "/");
+            return colName ? replaceAll(colName, ".", "/") : '';
         };
         /**
          * grid calls this to get rows
@@ -532,7 +534,7 @@ var OdataProvider = /** @class */ (function () {
                 me.cancelPromice = me.createCancelablePromise();
             }
             Promise.race([me.cancelPromice.promise, me.callApi(query)]).then(function (x) { return __awaiter(_this, void 0, void 0, function () {
-                var values_1, count_1, rowData, eof, subQuery, newRowData, pivotResult, secondaryColDefs, totalCount, serverSideBlock;
+                var values_1, count_1, rowData, eof, subQuery, newRowData, pivotResult, secondaryColDefs, totalCount;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
@@ -599,13 +601,13 @@ var OdataProvider = /** @class */ (function () {
                                 : rowData.length === options.top
                                     ? null
                                     : rowData.length;
-                            if (totalCount > (options.top || 0)) {
-                                serverSideBlock = params.parentNode.rowModel
-                                    .rowNodeBlockLoader.blocks[0];
-                                serverSideBlock.rowNodeCacheParams.blockSize = totalCount;
-                                serverSideBlock.endRow = serverSideBlock.startRow + totalCount;
-                                serverSideBlock.createRowNodes();
-                            }
+                            // if (totalCount > (options.top || 0)) {
+                            //   const serverSideBlock = (params as any).parentNode.rowModel
+                            //     .rowNodeBlockLoader.blocks[0];
+                            //   serverSideBlock.rowNodeCacheParams.blockSize = totalCount;
+                            //   serverSideBlock.endRow = serverSideBlock.startRow + totalCount;
+                            //   serverSideBlock.createRowNodes();
+                            // }
                             params.successCallback(rowData, totalCount);
                             if (this.afterLoadData) {
                                 this.afterLoadData(options, rowData, totalCount);
@@ -705,7 +707,7 @@ var OdataProvider = /** @class */ (function () {
                         if (requestSrv.valueCols.length > 0) {
                             for (var idx = 0; idx < requestSrv.valueCols.length; idx++) {
                                 var colValue = requestSrv.valueCols[idx];
-                                aggregate.push(me.odataAggregation[colValue.aggFunc](me.getWrapColumnName(colValue.field)));
+                                colValue.aggFunc && aggregate.push(me.odataAggregation[colValue.aggFunc](me.getWrapColumnName(colValue.field)));
                             }
                         }
                         var groups_1 = [
@@ -784,6 +786,22 @@ var OdataProvider = /** @class */ (function () {
         }
         this.cancelPromice = this.createCancelablePromise();
     }
+    /**
+     * Extract value from record by path to field
+     * @param field path to column value
+     * @param obj  record
+     */
+    OdataProvider.prototype.getValue = function (field, obj) {
+        var paths = field.split('.');
+        if (paths.length === 1) {
+            return obj[field];
+        }
+        else {
+            return paths.reduce(function (object, path) {
+                return (object || {})[path]; // Oliver Steele's pattern
+            }, obj);
+        }
+    };
     return OdataProvider;
 }());
 
