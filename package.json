@@ -1,6 +1,6 @@
 {
   "name": "ag-grid-odata",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "description": "Implementation Odata ServerSideDatasource for ag-grid",
   "main": "build/index.js",
   "module": "build/index.es.js",
@@ -31,7 +31,7 @@
   "devDependencies": {
     "@types/jest": "^26.0.4",
     "eslint": "^5.16.0",
-    "jest": "24.7.1",
+    "jest": "24.9.0",
     "prettier-standard": "^16.4.1",
     "rollup": "^1.32.1",
     "rollup-plugin-babel": "^4.3.3",
@@ -43,12 +43,12 @@
     "standard-prettier": "^1.0.1",
     "ts-jest": "^26.1.1",
     "typescript": "^3.9.6",
-    "@ag-grid-community/all-modules": "^22.0.0",
-    "@ag-grid-enterprise/all-modules": "22.0.0"
+    "@ag-grid-community/all-modules": "^25.1.0",
+    "@ag-grid-enterprise/all-modules": "25.1.0"
   },
   "peerDependencies": {
-    "@ag-grid-community/all-modules": "^22.0.0",
-    "@ag-grid-enterprise/all-modules": "22.0.0"
+    "@ag-grid-community/all-modules": "^25.1.0",
+    "@ag-grid-enterprise/all-modules": "25.1.0"
   },
   "standard": {
     "parser": "babel-eslint",

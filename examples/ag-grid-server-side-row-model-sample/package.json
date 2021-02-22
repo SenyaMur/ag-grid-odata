@@ -5,8 +5,8 @@
   "keywords": [],
   "main": "src/index.js",
   "dependencies": {
-    "@ag-grid-community/react": "^22.0.0",
-    "@ag-grid-enterprise/all-modules": "22.0.0",
+    "@ag-grid-community/react": "^25.1.0",
+    "@ag-grid-enterprise/all-modules": "25.1.0",
     "ag-grid-odata": "file:../..",
     "react": "16.8.6",
     "react-dom": "16.8.6",
