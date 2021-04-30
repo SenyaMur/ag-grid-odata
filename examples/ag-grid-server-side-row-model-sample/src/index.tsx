@@ -1,7 +1,6 @@
-import React from "react";
-import OdataProvider from "ag-grid-odata";
+import {OdataServerSideProvider} from "ag-grid-odata";
 import ReactDOM from "react-dom";
-import { AllModules } from "@ag-grid-enterprise/all-modules";
+import { AllModules,GridReadyEvent } from "@ag-grid-enterprise/all-modules";
 import { AgGridReact, AgGridColumn } from "@ag-grid-community/react";
 
 import "@ag-grid-community/all-modules/dist/styles/ag-grid.css";
@@ -9,9 +8,9 @@ import "@ag-grid-community/all-modules/dist/styles/ag-theme-balham.css";
 import "./styles.css";
 
 function App() {
-  const onGridReady = params => {
+  const onGridReady = (params: GridReadyEvent) => {
     params.api.setServerSideDatasource(
-      new OdataProvider({
+      new OdataServerSideProvider({
         callApi: options =>
           fetch(`https://odatav4sample.herokuapp.com/odata/Orders${options}`, {
             headers: {
@@ -24,7 +23,7 @@ function App() {
         },
         afterLoadData: (options, rowData, totalCount) => {
           if (options.skip === 0 && rowData.length > 0) {
-            params.api.columnController.autoSizeAllColumns();
+            params.columnApi.autoSizeAllColumns();
           }
         }
       })

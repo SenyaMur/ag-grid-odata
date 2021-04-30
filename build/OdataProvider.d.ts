@@ -234,6 +234,7 @@ export declare class OdataProvider implements OdataProviderOptions {
        * Calculate distinct values for input field from Odata api
        * @param field The field of the row to get the cells data from
        * @param callback The function for return distinct values for input field
+       * @param beforeRequest The function for customize request
        * @example
        * <pre><code>
        *  const setFilterValuesFuncParams = params => {
@@ -265,7 +266,7 @@ export declare class OdataProvider implements OdataProviderOptions {
                   />
        * </code></pre>
        */
-    getFilterValuesParams: (field: string, callback: (data: any[]) => void) => void;
+    getFilterValuesParams: (field: string, callback: (data: any[]) => void, beforeRequest: (options: OdataQueryExtendFull) => void | undefined) => void;
     /**
      * Detect is string value
      * @param value
@@ -282,10 +283,14 @@ export declare class OdataProvider implements OdataProviderOptions {
      */
     private getWrapColumnName;
     /**
-     * grid calls this to get rows
+     * grid calls this to get rows for IServerSideDatasource
      * @param params ag-grid details for the request
      */
-    getRows: (params: IGetRowsParams | IServerSideGetRowsParams) => void;
+    /**
+     * grid calls this to get rows implement
+     * @param params ag-grid details for the request
+     */
+    getRows(params: IGetRowsParams | IServerSideGetRowsParams): void;
     /**
      * Generate odata options for build query from ag-grid request
      * @param params ag-grid details for the request
@@ -296,5 +301,11 @@ export declare class OdataProvider implements OdataProviderOptions {
      * @param params ag-grid details for the request
      */
     getOdataQuery: (params: IGetRowsParams | IServerSideGetRowsParams) => string;
+}
+export declare class OdataProviderClient extends OdataProvider {
+    getRows(params: IServerSideGetRowsParams): void;
+}
+export declare class OdataServerSideProvider extends OdataProvider {
+    getRows(params: IServerSideGetRowsParams): void;
 }
 export {};

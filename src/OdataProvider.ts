@@ -3,7 +3,7 @@ import {
   ColDef,
   ColGroupDef,
   ColumnVO,
-  IServerSideGetRowsRequest,
+  IServerSideGetRowsRequest
 } from "@ag-grid-community/all-modules";
 import { IServerSideGetRowsParams } from "@ag-grid-enterprise/all-modules";
 
@@ -94,7 +94,6 @@ declare interface CancelablePromise {
   promise: Promise<any>;
   cancel: () => void;
 }
-
 export class OdataProvider implements OdataProviderOptions {
   /**
    * Function for call odata api
@@ -652,6 +651,7 @@ export class OdataProvider implements OdataProviderOptions {
      * Calculate distinct values for input field from Odata api
      * @param field The field of the row to get the cells data from 
      * @param callback The function for return distinct values for input field
+     * @param beforeRequest The function for customize request
      * @example 
      * <pre><code>
      *  const setFilterValuesFuncParams = params => {
@@ -685,13 +685,18 @@ export class OdataProvider implements OdataProviderOptions {
      */
   getFilterValuesParams = (
     field: string,
-    callback: (data: any[]) => void
+    callback: (data: any[]) => void,
+    beforeRequest: (options: OdataQueryExtendFull) => void | undefined
   ): void => {
     const me = this;
-    me.callApi(
-      me.toQuery({
+    const options: OdataQueryExtendFull = {
         apply: [`groupby((${me.getWrapColumnName(field)}))`],
-      })
+      }
+    if (beforeRequest) {
+      beforeRequest(options)
+    }
+    me.callApi(
+      me.toQuery(options)
     ).then((x) => {
       if (x) {
         let values = me.getOdataResult(x);
@@ -717,10 +722,14 @@ export class OdataProvider implements OdataProviderOptions {
   private getWrapColumnName = (colName: string | undefined): string =>
     colName ? replaceAll(colName, ".", "/") : '';
   /**
-   * grid calls this to get rows
+   * grid calls this to get rows for IServerSideDatasource
    * @param params ag-grid details for the request
    */
-  getRows = (params: IGetRowsParams | IServerSideGetRowsParams): void => {
+  /**
+   * grid calls this to get rows implement
+   * @param params ag-grid details for the request
+   */
+  public getRows (params: IGetRowsParams | IServerSideGetRowsParams): void {
     const me = this;
     const childCount = me.groupCountFieldName;
     const isServerMode = "request" in params;
@@ -1014,3 +1023,14 @@ export class OdataProvider implements OdataProviderOptions {
   getOdataQuery = (params: IGetRowsParams | IServerSideGetRowsParams): string =>
     this.toQuery(this.getOdataOptions(params));
 }
+
+export class OdataProviderClient extends OdataProvider {
+  public override getRows (params: IServerSideGetRowsParams){
+    super.getRows(params);
+  } 
+} 
+export class OdataServerSideProvider  extends OdataProvider {
+  public override getRows (params: IServerSideGetRowsParams): void {
+    super.getRows(params);
+  } 
+} 

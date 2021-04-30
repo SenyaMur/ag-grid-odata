@@ -2,32 +2,45 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-
-
 var types = /*#__PURE__*/Object.freeze({
     __proto__: null
 });
 
 /*! *****************************************************************************
-Copyright (c) Microsoft Corporation. All rights reserved.
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-this file except in compliance with the License. You may obtain a copy of the
-License at http://www.apache.org/licenses/LICENSE-2.0
+Copyright (c) Microsoft Corporation.
 
-THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-MERCHANTABLITY OR NON-INFRINGEMENT.
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
 
-See the Apache Version 2.0 License for specific language governing permissions
-and limitations under the License.
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
 ***************************************************************************** */
+/* global Reflect, Promise */
+
+var extendStatics = function(d, b) {
+    extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return extendStatics(d, b);
+};
+
+function __extends(d, b) {
+    extendStatics(d, b);
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+}
 
 function __awaiter(thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 }
@@ -443,6 +456,7 @@ var OdataProvider = /** @class */ (function () {
            * Calculate distinct values for input field from Odata api
            * @param field The field of the row to get the cells data from
            * @param callback The function for return distinct values for input field
+           * @param beforeRequest The function for customize request
            * @example
            * <pre><code>
            *  const setFilterValuesFuncParams = params => {
@@ -474,11 +488,15 @@ var OdataProvider = /** @class */ (function () {
                       />
            * </code></pre>
            */
-        this.getFilterValuesParams = function (field, callback) {
+        this.getFilterValuesParams = function (field, callback, beforeRequest) {
             var me = _this;
-            me.callApi(me.toQuery({
+            var options = {
                 apply: ["groupby((" + me.getWrapColumnName(field) + "))"],
-            })).then(function (x) {
+            };
+            if (beforeRequest) {
+                beforeRequest(options);
+            }
+            me.callApi(me.toQuery(options)).then(function (x) {
                 if (x) {
                     var values = me.getOdataResult(x);
                     callback(values.map(function (y) { return y[field]; }));
@@ -503,131 +521,6 @@ var OdataProvider = /** @class */ (function () {
          */
         this.getWrapColumnName = function (colName) {
             return colName ? replaceAll(colName, ".", "/") : '';
-        };
-        /**
-         * grid calls this to get rows
-         * @param params ag-grid details for the request
-         */
-        this.getRows = function (params) {
-            var me = _this;
-            var childCount = me.groupCountFieldName;
-            var isServerMode = "request" in params;
-            var request = isServerMode
-                ? params.request
-                : params;
-            var requestSrv = request;
-            var pivotActive = !isServerMode
-                ? false
-                : requestSrv.pivotMode &&
-                    requestSrv.pivotCols.length > 0 &&
-                    requestSrv.valueCols.length > 0;
-            if (!pivotActive) {
-                params.parentNode.columnApi.setSecondaryColumns([]);
-            }
-            var options = me.getOdataOptions(params);
-            var query = me.toQuery(options);
-            if (options.skip === 0 &&
-                (!isServerMode ||
-                    (isServerMode &&
-                        params.parentNode.level === -1))) {
-                me.cancelPromice.cancel();
-                me.cancelPromice = me.createCancelablePromise();
-            }
-            Promise.race([me.cancelPromice.promise, me.callApi(query)]).then(function (x) { return __awaiter(_this, void 0, void 0, function () {
-                var values_1, count_1, rowData, eof, subQuery, newRowData, pivotResult, secondaryColDefs, totalCount;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!!x) return [3 /*break*/, 1];
-                            params.failCallback();
-                            return [3 /*break*/, 6];
-                        case 1:
-                            values_1 = me.getOdataResult(x);
-                            if (!!pivotActive) return [3 /*break*/, 2];
-                            if (!options.apply) {
-                                params.successCallback(values_1, x["@odata.count"]);
-                                if (this.afterLoadData) {
-                                    this.afterLoadData(options, values_1, x["@odata.count"]);
-                                }
-                            }
-                            else {
-                                count_1 = values_1.length;
-                                if (count_1 === options.top && options.skip === 0) {
-                                    // Если мы получили группировку с числом экземпляров больше чем у мы запросили, то делаем запрос общего количества
-                                    me.callApi(query + "/aggregate($count as count)").then(function (y) {
-                                        count_1 = me.getOdataResult(y)[0].count;
-                                        params.successCallback(values_1, count_1);
-                                    });
-                                }
-                                else {
-                                    if (options.skip != null && options.skip > 0) {
-                                        count_1 = null;
-                                    }
-                                    params.successCallback(values_1, count_1);
-                                    if (this.afterLoadData) {
-                                        this.afterLoadData(options, values_1, count_1);
-                                    }
-                                }
-                            }
-                            return [3 /*break*/, 6];
-                        case 2:
-                            rowData = me.getOdataResult(x);
-                            if (!(rowData.length === options.top &&
-                                options.skip === 0 &&
-                                requestSrv.groupKeys.length === 0)) return [3 /*break*/, 5];
-                            eof = false;
-                            _a.label = 3;
-                        case 3:
-                            if (!!eof) return [3 /*break*/, 5];
-                            options.skip += options.top || 0;
-                            subQuery = me.toQuery(options);
-                            return [4 /*yield*/, me.callApi(subQuery)];
-                        case 4:
-                            newRowData = _a.sent();
-                            if (!newRowData) {
-                                params.failCallback();
-                                return [2 /*return*/];
-                            }
-                            eof = newRowData.length !== options.top;
-                            rowData = rowData.concat(newRowData);
-                            return [3 /*break*/, 3];
-                        case 5:
-                            pivotResult = me.getPivot(requestSrv.pivotCols, requestSrv.rowGroupCols, requestSrv.valueCols, rowData, childCount);
-                            rowData = pivotResult.data;
-                            secondaryColDefs = pivotResult.secondaryColDefs;
-                            rowData = me.buildGroupsFromData(rowData, requestSrv.rowGroupCols, requestSrv.groupKeys, childCount);
-                            totalCount = requestSrv.groupKeys.length === 0
-                                ? rowData.length
-                                : rowData.length === options.top
-                                    ? null
-                                    : rowData.length;
-                            // if (totalCount > (options.top || 0)) {
-                            //   const serverSideBlock = (params as any).parentNode.rowModel
-                            //     .rowNodeBlockLoader.blocks[0];
-                            //   serverSideBlock.rowNodeCacheParams.blockSize = totalCount;
-                            //   serverSideBlock.endRow = serverSideBlock.startRow + totalCount;
-                            //   serverSideBlock.createRowNodes();
-                            // }
-                            params.successCallback(rowData, totalCount);
-                            if (this.afterLoadData) {
-                                this.afterLoadData(options, rowData, totalCount);
-                            }
-                            if (requestSrv.groupKeys.length === 0) {
-                                if (this.beforeSetSecondaryColumns) {
-                                    this.beforeSetSecondaryColumns(secondaryColDefs);
-                                }
-                                params.parentNode.columnApi.setSecondaryColumns(secondaryColDefs);
-                            }
-                            _a.label = 6;
-                        case 6: return [2 /*return*/];
-                    }
-                });
-            }); }, function (err) {
-                params.successCallback([], 0);
-                if (_this.setError) {
-                    _this.setError(err, params);
-                }
-            });
         };
         /**
          * Generate odata options for build query from ag-grid request
@@ -802,9 +695,161 @@ var OdataProvider = /** @class */ (function () {
             }, obj);
         }
     };
+    /**
+     * grid calls this to get rows for IServerSideDatasource
+     * @param params ag-grid details for the request
+     */
+    /**
+     * grid calls this to get rows implement
+     * @param params ag-grid details for the request
+     */
+    OdataProvider.prototype.getRows = function (params) {
+        var _this = this;
+        var me = this;
+        var childCount = me.groupCountFieldName;
+        var isServerMode = "request" in params;
+        var request = isServerMode
+            ? params.request
+            : params;
+        var requestSrv = request;
+        var pivotActive = !isServerMode
+            ? false
+            : requestSrv.pivotMode &&
+                requestSrv.pivotCols.length > 0 &&
+                requestSrv.valueCols.length > 0;
+        if (!pivotActive) {
+            params.parentNode.columnApi.setSecondaryColumns([]);
+        }
+        var options = me.getOdataOptions(params);
+        var query = me.toQuery(options);
+        if (options.skip === 0 &&
+            (!isServerMode ||
+                (isServerMode &&
+                    params.parentNode.level === -1))) {
+            me.cancelPromice.cancel();
+            me.cancelPromice = me.createCancelablePromise();
+        }
+        Promise.race([me.cancelPromice.promise, me.callApi(query)]).then(function (x) { return __awaiter(_this, void 0, void 0, function () {
+            var values_1, count_1, rowData, eof, subQuery, newRowData, pivotResult, secondaryColDefs, totalCount;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!!x) return [3 /*break*/, 1];
+                        params.failCallback();
+                        return [3 /*break*/, 6];
+                    case 1:
+                        values_1 = me.getOdataResult(x);
+                        if (!!pivotActive) return [3 /*break*/, 2];
+                        if (!options.apply) {
+                            params.successCallback(values_1, x["@odata.count"]);
+                            if (this.afterLoadData) {
+                                this.afterLoadData(options, values_1, x["@odata.count"]);
+                            }
+                        }
+                        else {
+                            count_1 = values_1.length;
+                            if (count_1 === options.top && options.skip === 0) {
+                                // Если мы получили группировку с числом экземпляров больше чем у мы запросили, то делаем запрос общего количества
+                                me.callApi(query + "/aggregate($count as count)").then(function (y) {
+                                    count_1 = me.getOdataResult(y)[0].count;
+                                    params.successCallback(values_1, count_1);
+                                });
+                            }
+                            else {
+                                if (options.skip != null && options.skip > 0) {
+                                    count_1 = null;
+                                }
+                                params.successCallback(values_1, count_1);
+                                if (this.afterLoadData) {
+                                    this.afterLoadData(options, values_1, count_1);
+                                }
+                            }
+                        }
+                        return [3 /*break*/, 6];
+                    case 2:
+                        rowData = me.getOdataResult(x);
+                        if (!(rowData.length === options.top &&
+                            options.skip === 0 &&
+                            requestSrv.groupKeys.length === 0)) return [3 /*break*/, 5];
+                        eof = false;
+                        _a.label = 3;
+                    case 3:
+                        if (!!eof) return [3 /*break*/, 5];
+                        options.skip += options.top || 0;
+                        subQuery = me.toQuery(options);
+                        return [4 /*yield*/, me.callApi(subQuery)];
+                    case 4:
+                        newRowData = _a.sent();
+                        if (!newRowData) {
+                            params.failCallback();
+                            return [2 /*return*/];
+                        }
+                        eof = newRowData.length !== options.top;
+                        rowData = rowData.concat(newRowData);
+                        return [3 /*break*/, 3];
+                    case 5:
+                        pivotResult = me.getPivot(requestSrv.pivotCols, requestSrv.rowGroupCols, requestSrv.valueCols, rowData, childCount);
+                        rowData = pivotResult.data;
+                        secondaryColDefs = pivotResult.secondaryColDefs;
+                        rowData = me.buildGroupsFromData(rowData, requestSrv.rowGroupCols, requestSrv.groupKeys, childCount);
+                        totalCount = requestSrv.groupKeys.length === 0
+                            ? rowData.length
+                            : rowData.length === options.top
+                                ? null
+                                : rowData.length;
+                        // if (totalCount > (options.top || 0)) {
+                        //   const serverSideBlock = (params as any).parentNode.rowModel
+                        //     .rowNodeBlockLoader.blocks[0];
+                        //   serverSideBlock.rowNodeCacheParams.blockSize = totalCount;
+                        //   serverSideBlock.endRow = serverSideBlock.startRow + totalCount;
+                        //   serverSideBlock.createRowNodes();
+                        // }
+                        params.successCallback(rowData, totalCount);
+                        if (this.afterLoadData) {
+                            this.afterLoadData(options, rowData, totalCount);
+                        }
+                        if (requestSrv.groupKeys.length === 0) {
+                            if (this.beforeSetSecondaryColumns) {
+                                this.beforeSetSecondaryColumns(secondaryColDefs);
+                            }
+                            params.parentNode.columnApi.setSecondaryColumns(secondaryColDefs);
+                        }
+                        _a.label = 6;
+                    case 6: return [2 /*return*/];
+                }
+            });
+        }); }, function (err) {
+            params.successCallback([], 0);
+            if (_this.setError) {
+                _this.setError(err, params);
+            }
+        });
+    };
     return OdataProvider;
 }());
+var OdataProviderClient = /** @class */ (function (_super) {
+    __extends(OdataProviderClient, _super);
+    function OdataProviderClient() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    OdataProviderClient.prototype.getRows = function (params) {
+        _super.prototype.getRows.call(this, params);
+    };
+    return OdataProviderClient;
+}(OdataProvider));
+var OdataServerSideProvider = /** @class */ (function (_super) {
+    __extends(OdataServerSideProvider, _super);
+    function OdataServerSideProvider() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    OdataServerSideProvider.prototype.getRows = function (params) {
+        _super.prototype.getRows.call(this, params);
+    };
+    return OdataServerSideProvider;
+}(OdataProvider));
 
+exports.OdataProviderClient = OdataProviderClient;
+exports.OdataServerSideProvider = OdataServerSideProvider;
 exports.default = OdataProvider;
 exports.types = types;
 //# sourceMappingURL=index.js.map
