@@ -59,6 +59,10 @@ export declare class OdataProviderOptions {
      * Callback for catch error
      */
     setError?: (error: any, params: IGetRowsParams | IServerSideGetRowsParams) => void;
+    /**
+     * List of columns by id/field are case sensitive for build odata query
+     */
+    caseSensitiveColumns?: string[];
 }
 declare interface CancelablePromise {
     promise: Promise<any>;
@@ -122,6 +126,10 @@ export declare class OdataProvider implements OdataProviderOptions {
      * Callback for catch error
      */
     setError: (error: any, params: IGetRowsParams | IServerSideGetRowsParams) => void;
+    /**
+     * List of columns by id/field are case sensitive for build odata query
+     */
+    caseSensitiveColumns?: string[];
     cancelPromice: CancelablePromise;
     constructor(options: OdataProviderOptions);
     /**Creator a cancelable Promise */
@@ -183,6 +191,12 @@ export declare class OdataProvider implements OdataProviderOptions {
      * @param value date string
      */
     toDateTime: (value: string) => string | null;
+    /**
+     *
+     * @param colName columnName
+     * @returns is CaseSensitive for column
+     */
+    private getIsNeedCaseSensitive;
     /**
      * Convert ag-grid column filter to odata query
      * @param colName columnName

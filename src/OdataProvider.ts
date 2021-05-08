@@ -82,6 +82,10 @@ export declare class OdataProviderOptions {
    * Callback for catch error
    */
   setError?: (error: any, params: IGetRowsParams | IServerSideGetRowsParams) => void;
+  /**
+   * List of columns by id/field are case sensitive for build odata query
+   */
+  caseSensitiveColumns?: string[];
 }
 function escapeRegExp(string) {
   return string.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
@@ -162,6 +166,10 @@ export class OdataProvider implements OdataProviderOptions {
    * Callback for catch error
    */
   setError: (error: any, params: IGetRowsParams | IServerSideGetRowsParams) => void;
+  /**
+   * List of columns by id/field are case sensitive for build odata query
+   */
+  caseSensitiveColumns?: string[];
   cancelPromice: CancelablePromise;
   constructor(options: OdataProviderOptions) {
     Object.assign(this, options);
@@ -367,13 +375,27 @@ export class OdataProvider implements OdataProviderOptions {
     return dt1.toISOString();
   };
   /**
+   * 
+   * @param colName columnName
+   * @returns is CaseSensitive for column
+   */
+  private getIsNeedCaseSensitive =(colName: string)=>{
+    if(!this.isCaseSensitiveStringFilter && 
+      this.caseSensitiveColumns &&
+      this.caseSensitiveColumns.length > 0){
+      return this.caseSensitiveColumns.indexOf(colName) >= 0;
+    } 
+    return this.isCaseSensitiveStringFilter;
+  }
+  /**
    * Convert ag-grid column filter to odata query
    * @param colName columnName
    * @param col ag-grid column
    */
   private getFilterOdata = (colName: string, col: any): string => {
-    colName = replaceAll(colName, ".", "/");
     const me = this;
+    const isCaseSensitiveStringFilter = me.getIsNeedCaseSensitive(colName)
+    colName = replaceAll(colName, ".", "/");
     colName = me.getWrapColumnName(colName);
     switch (col.filterType) {
       case "number":
@@ -384,14 +406,14 @@ export class OdataProvider implements OdataProviderOptions {
         // let filterTo = me.encode(col.filterTo);
         if (
           (operatorName === "equals" || operatorName === "notEqual") &&
-          !me.isCaseSensitiveStringFilter
+          !isCaseSensitiveStringFilter
         ) {
           operatorName += "Str";
         }
         return me.odataOperator[operatorName](
           colName,
           `'${filter}'`,
-          me.isCaseSensitiveStringFilter
+          isCaseSensitiveStringFilter
         );
       }
       case "date":
@@ -409,7 +431,7 @@ export class OdataProvider implements OdataProviderOptions {
           ? me.odataOperator.inStr(
               colName,
               col.values,
-              this.isCaseSensitiveStringFilter
+              isCaseSensitiveStringFilter
             )
           : "";
       default:

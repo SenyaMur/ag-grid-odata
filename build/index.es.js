@@ -237,13 +237,27 @@ var OdataProvider = /** @class */ (function () {
             return dt1.toISOString();
         };
         /**
+         *
+         * @param colName columnName
+         * @returns is CaseSensitive for column
+         */
+        this.getIsNeedCaseSensitive = function (colName) {
+            if (!_this.isCaseSensitiveStringFilter &&
+                _this.caseSensitiveColumns &&
+                _this.caseSensitiveColumns.length > 0) {
+                return _this.caseSensitiveColumns.indexOf(colName) >= 0;
+            }
+            return _this.isCaseSensitiveStringFilter;
+        };
+        /**
          * Convert ag-grid column filter to odata query
          * @param colName columnName
          * @param col ag-grid column
          */
         this.getFilterOdata = function (colName, col) {
-            colName = replaceAll(colName, ".", "/");
             var me = _this;
+            var isCaseSensitiveStringFilter = me.getIsNeedCaseSensitive(colName);
+            colName = replaceAll(colName, ".", "/");
             colName = me.getWrapColumnName(colName);
             switch (col.filterType) {
                 case "number":
@@ -253,10 +267,10 @@ var OdataProvider = /** @class */ (function () {
                     var filter = me.encode(col.filter);
                     // let filterTo = me.encode(col.filterTo);
                     if ((operatorName === "equals" || operatorName === "notEqual") &&
-                        !me.isCaseSensitiveStringFilter) {
+                        !isCaseSensitiveStringFilter) {
                         operatorName += "Str";
                     }
-                    return me.odataOperator[operatorName](colName, "'" + filter + "'", me.isCaseSensitiveStringFilter);
+                    return me.odataOperator[operatorName](colName, "'" + filter + "'", isCaseSensitiveStringFilter);
                 }
                 case "date":
                     if (col.dateFrom != null && me.toDateTime(col.dateFrom) != null &&
@@ -266,7 +280,7 @@ var OdataProvider = /** @class */ (function () {
                     break;
                 case "set":
                     return col.values.length > 0
-                        ? me.odataOperator.inStr(colName, col.values, _this.isCaseSensitiveStringFilter)
+                        ? me.odataOperator.inStr(colName, col.values, isCaseSensitiveStringFilter)
                         : "";
             }
             return "";

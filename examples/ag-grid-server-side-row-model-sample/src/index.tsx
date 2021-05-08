@@ -11,6 +11,8 @@ function App() {
   const onGridReady = (params: GridReadyEvent) => {
     params.api.setServerSideDatasource(
       new OdataServerSideProvider({
+        isCaseSensitiveStringFilter: false,
+        caseSensitiveColumns:["Customer.Name"],
         callApi: options =>
           fetch(`https://odatav4sample.herokuapp.com/odata/Orders${options}`, {
             headers: {
@@ -54,6 +56,8 @@ function App() {
           sideBar={true}
           //Enable server mode DataSource
           rowModelType="serverSide"
+          //@ts-ignore
+          serverSideStoreType="partial"
           // fetch 100 rows per at a time
           cacheBlockSize={100}
           onGridReady={onGridReady}
@@ -69,6 +73,7 @@ function App() {
             return data && data.childCount;
           }}
           defaultColDef={{
+            filter: true,
             sortable: true,
             resizable: true,
             enablePivot: true,
@@ -92,6 +97,7 @@ function App() {
             enableRowGroup
             field="Customer.Name"
             headerName="Customer"
+            filter="agTextColumnFilter"
           />
           <AgGridColumn
             field="Price"
