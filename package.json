@@ -3,10 +3,9 @@
   "version": "1.0.24",
   "description": "Implementation Odata ServerSideDatasource for ag-grid",
   "main": "build/index.js",
-  "module": "build/index.es.js",
-  "jsnext:main": "build/index.es.js",
+  "types": "build/index.d.ts",
   "scripts": {
-    "build": "rollup -c",
+    "build": "tsc",
     "lint": "standard --fix",
     "format": "prettier-standard --format",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -29,22 +28,13 @@
   },
   "homepage": "https://github.com/SenyaMur/ag-grid-odata#readme",
   "devDependencies": {
+    "@ag-grid-community/all-modules": "^25.1.0",
+    "@ag-grid-enterprise/all-modules": "25.1.0",
     "@types/jest": "^26.0.23",
     "eslint": "^7.25.0",
     "jest": "26.6.3",
-    "prettier-standard": "^16.4.1",
-    "rollup": "^2.46.0",
-    "rollup-plugin-babel": "^4.4.0",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-peer-deps-external": "^2.2.4",
-    "rollup-plugin-typescript2": "^0.30.0",
-    "standard": "^16.0.3",
-    "standard-prettier": "^1.0.1",
     "ts-jest": "^26.5.5",
-    "typescript": "^4.3.0-beta",
-    "@ag-grid-community/all-modules": "^25.1.0",
-    "@ag-grid-enterprise/all-modules": "25.1.0"
+    "typescript": "^4.3.0-beta"
   },
   "peerDependencies": {
     "@ag-grid-community/all-modules": "^25.1.0",

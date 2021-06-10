@@ -1,4 +1,13 @@
-# ag-grid-odata
+<h1 align="center">Welcome to ag-grid-odata 👋</h1>
+<p align="center">
+  <img src="https://img.shields.io/npm/v/ag-grid-odata.svg?orange=blue" />
+  <a href="https://www.npmjs.com/package/ag-grid-odata">
+    <img alt="downloads" src="https://img.shields.io/npm/dm/ag-grid-odata.svg?color=blue" target="_blank" />
+  </a>
+  <a href="https://github.com/senyamur/ag-grid-odata/blob/master/LICENSE">
+    <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-yellow.svg" target="_blank" />
+  </a>
+</p>
 
 Odata provider for ag-grid
 
