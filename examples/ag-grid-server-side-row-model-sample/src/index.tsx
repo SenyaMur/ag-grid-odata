@@ -27,6 +27,12 @@ function App() {
           if (options.skip === 0 && rowData.length > 0) {
             params.columnApi.autoSizeAllColumns();
           }
+        },
+        customFilters:{
+          "Amount": (colName,col,isCaseSensitive,provider)=>{
+            debugger
+            return provider.odataOperator[col.type](colName, col.filter, col.filterTo)
+          }
         }
       })
     );
@@ -105,7 +111,7 @@ function App() {
             enableValue
             filter="agNumberColumnFilter"
           />
-          <AgGridColumn field="Amount" headerName="Amount" enableValue />
+          <AgGridColumn field="Amount" headerName="Amount" enableValue filter="agNumberColumnFilter" />
           <AgGridColumn
             field="Created"
             valueGetter={param =>

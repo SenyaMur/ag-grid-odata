@@ -14,6 +14,7 @@ import {
   PivotResultDat,
 } from "./types";
 
+import {replaceAll} from './utils'
 export declare class OdataProviderOptions {
   /**
    * Function for call odata api
@@ -86,13 +87,26 @@ export declare class OdataProviderOptions {
    * List of columns by id/field are case sensitive for build odata query
    */
   caseSensitiveColumns?: string[];
+  /**
+   * Use for specified column custom filter implementation
+   * <pre><code>
+       customFilters: {
+           "customer": (colName,col,isCaseSensitiveStringFilter,provider) =>{
+             return provider.odataOperator.in(
+              colName,
+              col.values
+            )
+           }
+       }
+   */
+  customFilters?: {
+    [index: string] : (colName: string,
+      col: any,
+      isCaseSensitiveStringFilter: boolean,
+      provider: OdataProvider)=> string
+  }
 }
-function escapeRegExp(string) {
-  return string.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
-}
-function replaceAll(str: string, search: string, replacement: string): string {
-  return str.replace(new RegExp(escapeRegExp(search), "g"), replacement);
-}
+
 
 declare interface CancelablePromise {
   promise: Promise<any>;
@@ -170,6 +184,24 @@ export class OdataProvider implements OdataProviderOptions {
    * List of columns by id/field are case sensitive for build odata query
    */
   caseSensitiveColumns?: string[];
+  /**
+   * Use for specified column custom filter implementation
+   * <pre><code>
+       customFilters: {
+           "customer": (colName,col,isCaseSensitiveStringFilter,provider) =>{
+             return provider.odataOperator.in(
+              colName,
+              col.values
+            )
+           }
+       }
+   */
+  customFilters?: {
+    [index: string] : (colName: string,
+      col: any,
+      isCaseSensitiveStringFilter: boolean,
+      provider: OdataProvider)=> string
+  }
   cancelPromice: CancelablePromise;
   constructor(options: OdataProviderOptions) {
     Object.assign(this, options);
@@ -395,47 +427,52 @@ export class OdataProvider implements OdataProviderOptions {
   private getFilterOdata = (colName: string, col: any): string => {
     const me = this;
     const isCaseSensitiveStringFilter = me.getIsNeedCaseSensitive(colName)
+    const customFilter = me.customFilters && me.customFilters[colName]
     colName = replaceAll(colName, ".", "/");
     colName = me.getWrapColumnName(colName);
-    switch (col.filterType) {
-      case "number":
-        return me.odataOperator[col.type](colName, col.filter, col.filterTo);
-      case "text": {
-        let operatorName = col.type;
-        const filter = me.encode(col.filter);
-        // let filterTo = me.encode(col.filterTo);
-        if (
-          (operatorName === "equals" || operatorName === "notEqual") &&
-          !isCaseSensitiveStringFilter
-        ) {
-          operatorName += "Str";
-        }
-        return me.odataOperator[operatorName](
-          colName,
-          `'${filter}'`,
-          isCaseSensitiveStringFilter
-        );
-      }
-      case "date":
-        if (col.dateFrom != null  && me.toDateTime(col.dateFrom) != null && 
-        (col.dateTo== null || (col.dateTo != null && me.toDateTime(col.dateTo) != null)) ){
-          return me.odataOperator[col.type](
+    if (customFilter){
+      return customFilter(colName,col,isCaseSensitiveStringFilter,me)
+    }else{
+      switch (col.filterType) {
+        case "number":
+          return me.odataOperator[col.type](colName, col.filter, col.filterTo);
+        case "text": {
+          let operatorName = col.type;
+          const filter = me.encode(col.filter);
+          // let filterTo = me.encode(col.filterTo);
+          if (
+            (operatorName === "equals" || operatorName === "notEqual") &&
+            !isCaseSensitiveStringFilter
+          ) {
+            operatorName += "Str";
+          }
+          return me.odataOperator[operatorName](
             colName,
-            `${me.toDateTime(col.dateFrom)}`,
-            `${me.toDateTime(col.dateTo)}`
+            `'${filter}'`,
+            isCaseSensitiveStringFilter
           );
         }
-        break;
-      case "set":
-        return col.values.length > 0
-          ? me.odataOperator.inStr(
+        case "date":
+          if (col.dateFrom != null  && me.toDateTime(col.dateFrom) != null && 
+          (col.dateTo== null || (col.dateTo != null && me.toDateTime(col.dateTo) != null)) ){
+            return me.odataOperator[col.type](
               colName,
-              col.values,
-              isCaseSensitiveStringFilter
-            )
-          : "";
-      default:
-        break;
+              `${me.toDateTime(col.dateFrom)}`,
+              `${me.toDateTime(col.dateTo)}`
+            );
+          }
+          break;
+        case "set":
+          return col.values.length > 0
+            ? me.odataOperator.inStr(
+                colName,
+                col.values,
+                isCaseSensitiveStringFilter
+              )
+            : "";
+        default:
+          break;
+      }
     }
     return "";
   };
@@ -795,7 +832,7 @@ export class OdataProvider implements OdataProviderOptions {
             } else {
               let count = values.length;
               if (count === options.top && options.skip === 0) {
-                // Если мы получили группировку с числом экземпляров больше чем у мы запросили, то делаем запрос общего количества
+                // If received grouped count of value large than requested then request total count of values
                 me.callApi(query + "/aggregate($count as count)").then((y) => {
                   count = me.getOdataResult(y)[0].count;
                   params.successCallback(values, count);
