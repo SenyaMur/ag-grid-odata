@@ -22,6 +22,7 @@ function App() {
           }).then(resp => resp.json()),
         beforeRequest: (query, provider) => {
           query.expand = ["customer"];
+          query.select = ["Id","Price","Amount","Created"]
         },
         afterLoadData: (options, rowData, totalCount) => {
           if (options.skip === 0 && rowData.length > 0) {
@@ -30,7 +31,6 @@ function App() {
         },
         customFilters:{
           "Amount": (colName,col,isCaseSensitive,provider)=>{
-            debugger
             return provider.odataOperator[col.type](colName, col.filter, col.filterTo)
           }
         }

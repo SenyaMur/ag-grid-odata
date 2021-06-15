@@ -382,6 +382,9 @@ export class OdataProvider implements OdataProviderOptions {
     if (options.expand && options.expand.length > 0) {
       path.push("$expand=" + options.expand.join(","));
     }
+    if (options.select  && options.select.length > 0) {
+      path.push("$select=" + options.select.join(","));
+    }
     let query: string = "";
     if (path.length > 0) {
       query = "?" + path.join("&");
