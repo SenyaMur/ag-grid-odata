@@ -104,7 +104,7 @@ export declare class OdataProviderOptions {
       col: any,
       isCaseSensitiveStringFilter: boolean,
       provider: OdataProvider)=> string
-  }
+  } | ((provider: OdataProvider) => void)
 }
 
 
@@ -1095,4 +1095,4 @@ export class OdataServerSideProvider  extends OdataProvider {
   public override getRows (params: IServerSideGetRowsParams): void {
     super.getRows(params);
   } 
-} 
+}   }
