@@ -5,11 +5,13 @@
   "keywords": [],
   "main": "src/index.js",
   "dependencies": {
-    "@ag-grid-community/react": "^25.1.0",
-    "@ag-grid-enterprise/all-modules": "25.1.0",
+    "ag-grid-community": "25.1.0",
+    "ag-grid-enterprise": "25.1.0",
     "ag-grid-odata": "file:../..",
+    "ag-grid-react": "25.1.0",
     "react": "17.0.2",
     "react-dom": "17.0.2",
+    "react-dom-factories": "^1.0.2",
     "react-scripts": "4.0.3"
   },
   "devDependencies": {

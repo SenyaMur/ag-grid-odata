@@ -1,10 +1,13 @@
-import {OdataServerSideProvider} from "ag-grid-odata";
 import ReactDOM from "react-dom";
-import { AllModules,GridReadyEvent } from "@ag-grid-enterprise/all-modules";
-import { AgGridReact, AgGridColumn } from "@ag-grid-community/react";
+import { AgGridReact, AgGridColumn } from 'ag-grid-react';
 
-import "@ag-grid-community/all-modules/dist/styles/ag-grid.css";
-import "@ag-grid-community/all-modules/dist/styles/ag-theme-balham.css";
+import 'ag-grid-community/dist/styles/ag-grid.css';
+import 'ag-grid-community/dist/styles/ag-theme-balham.css';
+import 'ag-grid-enterprise';
+
+import { OdataServerSideProvider } from "ag-grid-odata";
+
+import { GridReadyEvent } from "ag-grid-community";
 import "./styles.css";
 
 function App() {
@@ -58,7 +61,6 @@ function App() {
         className="ag-theme-balham"
       >
         <AgGridReact
-          modules={AllModules}
           sideBar={true}
           //Enable server mode DataSource
           rowModelType="serverSide"

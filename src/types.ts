@@ -1,4 +1,4 @@
-import {ColumnVO } from '@ag-grid-community/all-modules'
+import {ColumnVO } from 'ag-grid-community'
 
 export interface OdataQueryOptions{
     sort? : Array<string>;

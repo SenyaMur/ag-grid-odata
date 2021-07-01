@@ -3,9 +3,9 @@ import {
   ColDef,
   ColGroupDef,
   ColumnVO,
-  IServerSideGetRowsRequest
-} from "@ag-grid-community/all-modules";
-import { IServerSideGetRowsParams } from "@ag-grid-enterprise/all-modules";
+  IServerSideGetRowsRequest,
+  IServerSideGetRowsParams
+} from "ag-grid-community";
 
 import {
   OdataQueryExtendFull,
