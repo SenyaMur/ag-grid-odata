@@ -823,7 +823,11 @@ export class OdataProvider implements OdataProviderOptions {
         requestSrv.valueCols.length > 0
 
     if (!pivotActive) {
-      ;(params as any).columnApi.setSecondaryColumns([])
+      let fn = (params as any).columnApi.setSecondaryColumns
+      if (!fn) {
+        fn = (params as any).columnApi.getPivotResultColumn
+      }
+      fn([])
     }
     const options = me.getOdataOptions(params)
     const query = me.toQuery(options)
@@ -923,7 +927,11 @@ export class OdataProvider implements OdataProviderOptions {
               if (this.beforeSetSecondaryColumns) {
                 this.beforeSetSecondaryColumns(secondaryColDefs)
               }
-              ;(params as any).columnApi.setSecondaryColumns(secondaryColDefs)
+              let fn = (params as any).columnApi.setSecondaryColumns
+              if (!fn) {
+                fn = (params as any).columnApi.getPivotResultColumn
+              }
+              fn(secondaryColDefs)
             }
           }
         }
