@@ -823,11 +823,14 @@ export class OdataProvider implements OdataProviderOptions {
         requestSrv.valueCols.length > 0
 
     if (!pivotActive) {
-      let fn = (params as any).columnApi.setSecondaryColumns
-      if (!fn) {
-        fn = (params as any).columnApi.getPivotResultColumn
+      let fn = (params as any).columnApi.setPivotResultColumns
+      if (fn != null) {
+        // if ((params as any).columnApi.isPivotMode()) {
+        ;(params as any).columnApi.setPivotResultColumns([])
+        // }
+      } else {
+        ;(params as any).columnApi.setSecondaryColumns([])
       }
-      fn([])
     }
     const options = me.getOdataOptions(params)
     const query = me.toQuery(options)
@@ -927,11 +930,14 @@ export class OdataProvider implements OdataProviderOptions {
               if (this.beforeSetSecondaryColumns) {
                 this.beforeSetSecondaryColumns(secondaryColDefs)
               }
-              let fn = (params as any).columnApi.setSecondaryColumns
-              if (!fn) {
-                fn = (params as any).columnApi.getPivotResultColumn
+              let fn = (params as any).columnApi.setPivotResultColumns
+              if (fn) {
+                ;(params as any).columnApi.setPivotResultColumns(
+                  secondaryColDefs
+                )
+              } else {
+                ;(params as any).columnApi.setSecondaryColumns(secondaryColDefs)
               }
-              fn(secondaryColDefs)
             }
           }
         }
