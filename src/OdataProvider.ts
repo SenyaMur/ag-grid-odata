@@ -110,6 +110,24 @@ export declare class OdataProviderOptions {
       provider: OdataProvider
     ) => string
   }
+  /**
+   * Use for specified row custom filter by columnName implementation
+   * <pre><code>
+       rowCustomFilter: {
+           "customer": (colName,colValue,col,isCaseSensitiveStringFilter,provider) =>{
+             return `${colName} eq ${value}`};
+           }
+       }
+   */
+  rowCustomFilter?: {
+    [index: string]: (
+      colName: string,
+      colValue: any,
+      col: any,
+      isCaseSensitiveStringFilter: boolean,
+      provider: OdataProvider
+    ) => string
+  }
 }
 
 declare interface CancelablePromise {
@@ -206,6 +224,24 @@ export class OdataProvider implements OdataProviderOptions {
   customFilters?: {
     [index: string]: (
       colName: string,
+      col: any,
+      isCaseSensitiveStringFilter: boolean,
+      provider: OdataProvider
+    ) => string
+  }
+  /**
+   * Use for specified row custom filter by columnName implementation
+   * <pre><code>
+       rowCustomFilter: {
+           "customer": (colName,colValue,col,isCaseSensitiveStringFilter,provider) =>{
+             return `${colName} eq ${value}`};
+           }
+       }
+   */
+  rowCustomFilter?: {
+    [index: string]: (
+      colName: string,
+      colValue: any,
       col: any,
       isCaseSensitiveStringFilter: boolean,
       provider: OdataProvider
@@ -497,7 +533,37 @@ export class OdataProvider implements OdataProviderOptions {
     }
     return ''
   }
-
+  /**
+   * Convert ag-grid row grouping column filter to odata query
+   * @param colValue
+   * @param col ag-grid column
+   */
+  private getRowCustomFilter = (colValue: any, col: any) => {
+    const me = this
+    var colName = col.field
+    var isCaseSensitiveStringFilter = me.getIsNeedCaseSensitive(colName)
+    var rowCustomFilter = me.rowCustomFilter && me.rowCustomFilter[colName]
+    colName = replaceAll(colName, '.', '/')
+    colName = me.getWrapColumnName(colName)
+    if (rowCustomFilter) {
+      return rowCustomFilter(
+        colName,
+        colValue,
+        col,
+        isCaseSensitiveStringFilter,
+        me
+      )
+    } else {
+      const isStringValue = me.isStrVal(colValue)
+      return ''
+        .concat(colName, ' eq ')
+        .concat(
+          (isStringValue ? "'" : '') +
+            me.encode(colValue) +
+            (isStringValue ? "'" : '')
+        )
+    }
+  }
   /**
    * Extract value from record by path to field
    * @param field path to column value
@@ -1101,14 +1167,9 @@ export class OdataProvider implements OdataProviderOptions {
         } else {
           // If request rowData by group filter
           for (let idx = 0; idx < requestSrv.groupKeys.length; idx++) {
-            const colValue = requestSrv.groupKeys[idx]
-            const condition = `${me.getWrapColumnName(
-              requestSrv.rowGroupCols[idx].field
-            )} eq ${
-              (me.isStrVal(colValue) ? "'" : '') +
-              me.encode(colValue) +
-              (me.isStrVal(colValue) ? "'" : '')
-            }`
+            var colValue = requestSrv.groupKeys[idx]
+            var col = requestSrv.rowGroupCols[idx]
+            var condition = me.getRowCustomFilter(colValue, col)
             filter.push(condition)
           }
         }
