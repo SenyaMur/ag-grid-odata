@@ -1104,13 +1104,8 @@ export class OdataProvider implements OdataProviderOptions {
           // If request only groups
           for (let idx = 0; idx < requestSrv.groupKeys.length; idx++) {
             const colValue = requestSrv.groupKeys[idx]
-            const condition = `${me.getWrapColumnName(
-              requestSrv.rowGroupCols[idx].field
-            )} eq ${
-              (me.isStrVal(colValue) ? "'" : '') +
-              me.encode(colValue) +
-              (me.isStrVal(colValue) ? "'" : '')
-            }`
+            const col = requestSrv.rowGroupCols[idx]
+            const condition = me.getRowCustomFilter(colValue, col)
             filterGroupBy.push(condition)
           }
           if (filterGroupBy.length > 0 || filter.length > 0) {
@@ -1187,8 +1182,16 @@ export class OdataProvider implements OdataProviderOptions {
     }
     options.skip = request.startRow
     options.top = (request.endRow || 0) - (request.startRow || 0)
-
-    if (!options.apply && options.skip === 0) {
+    let isNeedCountForServerSide = false
+    if (isServerMode) {
+      try {
+        isNeedCountForServerSide = !params.api.getModel().isLastRowIndexKnown()
+      } catch {}
+    }
+    if (
+      !options.apply &&
+      (options.skip === 0 || (isServerMode && isNeedCountForServerSide))
+    ) {
       options.count = true
     }
     return options
