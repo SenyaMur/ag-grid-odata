@@ -15,27 +15,33 @@ function App() {
     params.api.setServerSideDatasource(
       new OdataServerSideProvider({
         isCaseSensitiveStringFilter: false,
-        caseSensitiveColumns:["Customer.Name"],
+        caseSensitiveColumns: ["Customer.Name"],
         callApi: options =>
-          fetch(`https://odatav4sample.herokuapp.com/odata/Orders${options}`, {
-            headers: {
-              "Content-type": "application/json",
-              Accept: "application/json"
-            }
+          fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(`https://services.odata.org/V4/Northwind/Northwind.svc/Order_Details${options}`), {
+
           }).then(resp => resp.json()),
         beforeRequest: (query, provider) => {
-          query.expand = ["customer"];
-          query.select = ["Id","Price","Amount","Created"]
+          query.expand = ["Order"];
+          query.select = ["OrderID",
+            "ProductID",
+            "UnitPrice",
+            "Quantity",
+            "Discount"]
         },
         afterLoadData: (options, rowData, totalCount) => {
           if (options.skip === 0 && rowData.length > 0) {
             params.columnApi.autoSizeAllColumns();
           }
         },
-        customFilters:{
-          "Amount": (colName,col,isCaseSensitive,provider)=>{
+        customFilters: {
+          "Amount": (colName, col, isCaseSensitive, provider) => {
             return provider.odataOperator[col.type](colName, col.filter, col.filterTo)
           }
+        },
+        rowCustomFilter: {
+          "Order.ShippedDate": (colName, value) => {
+            return colName + " eq " + value;
+          },
         }
       })
     );
@@ -100,29 +106,49 @@ function App() {
             valueGetter="node.rowIndex + 1"
           /> */}
           {/* enableRowGroup */}
-          <AgGridColumn enableRowGroup field="Id" headerName="Order ID" />
+          <AgGridColumn enableRowGroup field="OrderID" headerName="Order ID" />
           <AgGridColumn
             enableRowGroup
-            field="Customer.Name"
+            field="Order.ShippedDate"
+            valueGetter={param =>
+              param.data && param.data.Order.ShippedDate
+                ? new Date(param.data.Order.ShippedDate).toISOString().substring(0, 10)
+                : ""
+            }
+            headerName="ShippedDate"
+          />
+          <AgGridColumn
+            enableRowGroup
+            field="Order.CustomerID"
             headerName="Customer"
             filter="agTextColumnFilter"
           />
+
           <AgGridColumn
-            field="Price"
-            headerName="Price"
+            field="Order.Freight"
+            headerName="Freight"
             enableValue
             filter="agNumberColumnFilter"
           />
-          <AgGridColumn field="Amount" headerName="Amount" enableValue filter="agNumberColumnFilter" />
           <AgGridColumn
-            field="Created"
-            valueGetter={param =>
-              param.data && param.data.Created
-                ? new Date(param.data.Created).toISOString().substring(0, 10)
-                : ""
-            }
-            headerName="Created"
+            field="UnitPrice"
+            headerName="UnitPrice"
+            enableValue
+            filter="agNumberColumnFilter"
           />
+          <AgGridColumn
+            field="Quantity"
+            headerName="Quantity"
+            enableValue
+            filter="agNumberColumnFilter"
+          />
+          <AgGridColumn
+            field="Discount"
+            headerName="Discount"
+            enableValue
+            filter="agNumberColumnFilter"
+          />
+
         </AgGridReact>
       </div>
     </div>

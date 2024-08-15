@@ -39,41 +39,41 @@ export declare class OdataProviderOptions {
     request: IGetRowsParams | IServerSideGetRowsRequest
   ) => void
   /**
-  * Callback for pivot or group for aplly column ag-grid settings
-  * @example
-  * <pre><code>
-  * beforeSetSecondaryColumns = secondaryColumns => {
-   for (let i = 0; i < secondaryColumns.length; i++) {
-     const col = secondaryColumns[i]
-     if (col.children) {
-       beforeSetSecondaryColumns(col.children)
-     } else {
-       //Aplly new setting for group dyncamic created column
-       // col.cellClassRules = 
-       // col.valueFormatter = 
+    * Callback for pivot or group for aplly column ag-grid settings
+    * @example
+    * <pre><code>
+    * beforeSetSecondaryColumns = secondaryColumns => {
+     for (let i = 0; i < secondaryColumns.length; i++) {
+       const col = secondaryColumns[i]
+       if (col.children) {
+         beforeSetSecondaryColumns(col.children)
+       } else {
+         //Aplly new setting for group dyncamic created column
+         // col.cellClassRules = 
+         // col.valueFormatter = 
+       }
      }
    }
- }
-  * </pre></code>
-  */
+    * </pre></code>
+    */
   beforeSetSecondaryColumns?: (
     secondaryColDefs: (ColDef | ColGroupDef)[]
   ) => void
   /**
-  * Callback invoked after load data
-  * @param options odata provider options
-  * @param rowData data for ag-grid
-  * @param totalCount total count records
-  * 
-  * @example
-  * <pre><code>
-       afterLoadData = (options, rowData, totalCount) => {
-           if (options.skip === 0 && rowData.length > 0) {
-           gridApi.columnController.autoSizeAllColumns()
-           }
-       }
-  * </code></pre>
-  */
+    * Callback invoked after load data
+    * @param options odata provider options
+    * @param rowData data for ag-grid
+    * @param totalCount total count records
+    * 
+    * @example
+    * <pre><code>
+         afterLoadData = (options, rowData, totalCount) => {
+             if (options.skip === 0 && rowData.length > 0) {
+             gridApi.columnController.autoSizeAllColumns()
+             }
+         }
+    * </code></pre>
+    */
   afterLoadData?: (
     options: OdataQueryExtendOptions,
     rowData: any[],
@@ -91,17 +91,17 @@ export declare class OdataProviderOptions {
    */
   caseSensitiveColumns?: string[]
   /**
-   * Use for specified column custom filter implementation
-   * <pre><code>
-       customFilters: {
-           "customer": (colName,col,isCaseSensitiveStringFilter,provider) =>{
-             return provider.odataOperator.in(
-              colName,
-              col.values
-            )
-           }
-       }
-   */
+     * Use for specified column custom filter implementation
+     * <pre><code>
+         customFilters: {
+             "customer": (colName,col,isCaseSensitiveStringFilter,provider) =>{
+               return provider.odataOperator.in(
+                colName,
+                col.values
+              )
+             }
+         }
+     */
   customFilters?: {
     [index: string]: (
       colName: string,
@@ -111,14 +111,14 @@ export declare class OdataProviderOptions {
     ) => string
   }
   /**
-   * Use for specified row custom filter by columnName implementation
-   * <pre><code>
-       rowCustomFilter: {
-           "customer": (colName,colValue,col,isCaseSensitiveStringFilter,provider) =>{
-             return `${colName} eq ${value}`};
-           }
-       }
-   */
+     * Use for specified row custom filter by columnName implementation
+     * <pre><code>
+         rowCustomFilter: {
+             "customer": (colName,colValue,col,isCaseSensitiveStringFilter,provider) =>{
+               return `${colName} eq ${value}`};
+             }
+         }
+     */
   rowCustomFilter?: {
     [index: string]: (
       colName: string,
@@ -158,41 +158,41 @@ export class OdataProvider implements OdataProviderOptions {
     request: IGetRowsParams | IServerSideGetRowsRequest
   ) => void
   /**
-    * Callback for pivot or group for aplly column ag-grid settings
-    * @example
-    * <pre><code>
-    * beforeSetSecondaryColumns = secondaryColumns => {
-     for (let i = 0; i < secondaryColumns.length; i++) {
-       const col = secondaryColumns[i]
-       if (col.children) {
-         beforeSetSecondaryColumns(col.children)
-       } else {
-         //Aplly new setting for group dyncamic created column
-         // col.cellClassRules = 
-         // col.valueFormatter = 
+      * Callback for pivot or group for aplly column ag-grid settings
+      * @example
+      * <pre><code>
+      * beforeSetSecondaryColumns = secondaryColumns => {
+       for (let i = 0; i < secondaryColumns.length; i++) {
+         const col = secondaryColumns[i]
+         if (col.children) {
+           beforeSetSecondaryColumns(col.children)
+         } else {
+           //Aplly new setting for group dyncamic created column
+           // col.cellClassRules = 
+           // col.valueFormatter = 
+         }
        }
      }
-   }
-    * </pre></code>
-    */
+      * </pre></code>
+      */
   beforeSetSecondaryColumns: (
     secondaryColDefs: (ColDef | ColGroupDef)[]
   ) => void
   /**
-    * Callback invoked after load data
-    * @param options odata provider options
-    * @param rowData data for ag-grid
-    * @param totalCount total count records
-    * 
-    * @example
-    * <pre><code>
-         afterLoadData = (options, rowData, totalCount) => {
-             if (options.skip === 0 && rowData.length > 0) {
-             gridApi.columnController.autoSizeAllColumns()
-             }
-         }
-    * </code></pre>
-    */
+      * Callback invoked after load data
+      * @param options odata provider options
+      * @param rowData data for ag-grid
+      * @param totalCount total count records
+      * 
+      * @example
+      * <pre><code>
+           afterLoadData = (options, rowData, totalCount) => {
+               if (options.skip === 0 && rowData.length > 0) {
+               gridApi.columnController.autoSizeAllColumns()
+               }
+           }
+      * </code></pre>
+      */
   afterLoadData: (
     options: OdataQueryExtendOptions,
     rowData: any[],
@@ -210,17 +210,17 @@ export class OdataProvider implements OdataProviderOptions {
    */
   caseSensitiveColumns?: string[]
   /**
-   * Use for specified column custom filter implementation
-   * <pre><code>
-       customFilters: {
-           "customer": (colName,col,isCaseSensitiveStringFilter,provider) =>{
-             return provider.odataOperator.in(
-              colName,
-              col.values
-            )
-           }
-       }
-   */
+     * Use for specified column custom filter implementation
+     * <pre><code>
+         customFilters: {
+             "customer": (colName,col,isCaseSensitiveStringFilter,provider) =>{
+               return provider.odataOperator.in(
+                colName,
+                col.values
+              )
+             }
+         }
+     */
   customFilters?: {
     [index: string]: (
       colName: string,
@@ -230,14 +230,14 @@ export class OdataProvider implements OdataProviderOptions {
     ) => string
   }
   /**
-   * Use for specified row custom filter by columnName implementation
-   * <pre><code>
-       rowCustomFilter: {
-           "customer": (colName,colValue,col,isCaseSensitiveStringFilter,provider) =>{
-             return `${colName} eq ${value}`};
-           }
-       }
-   */
+     * Use for specified row custom filter by columnName implementation
+     * <pre><code>
+         rowCustomFilter: {
+             "customer": (colName,colValue,col,isCaseSensitiveStringFilter,provider) =>{
+               return `${colName} eq ${value}`};
+             }
+         }
+     */
   rowCustomFilter?: {
     [index: string]: (
       colName: string,
@@ -794,41 +794,41 @@ export class OdataProvider implements OdataProviderOptions {
   }
 
   /**
-     * Calculate distinct values for input field from Odata api
-     * @param field The field of the row to get the cells data from 
-     * @param callback The function for return distinct values for input field
-     * @param beforeRequest The function for customize request
-     * @example 
-     * <pre><code>
-     *  const setFilterValuesFuncParams = params => {
-     *    const me = this
-     *    const col = params.colDef.field
-     *    const storeName = me.getStoreName(col)
-     *    const callback = data => {
-     *      if (data) {
-     *        me.setState({ [storeName]: data })
-     *        params.success(data)
-     *      }
-     *    }
-     *    odataProviderInstance.getFilterValuesParams(params.colDef.field, callback)
-     *  }
-     * 
-     * ///....
-     *      <AgGridColumn
-                  field="product"
-                  headerName={'PRODUCT'}
-                  filter="agSetColumnFilter"
-                  // rowGroup
-                  // enablePivot
-                  enableRowGroup
-                  filterParams={{
-                    values: setFilterValuesFuncParams,
-                    newRowsAction: 'keep'
-                  }}
-                  // filterParams={{caseSensitive: true}}
-                />
-     * </code></pre>
-     */
+       * Calculate distinct values for input field from Odata api
+       * @param field The field of the row to get the cells data from 
+       * @param callback The function for return distinct values for input field
+       * @param beforeRequest The function for customize request
+       * @example 
+       * <pre><code>
+       *  const setFilterValuesFuncParams = params => {
+       *    const me = this
+       *    const col = params.colDef.field
+       *    const storeName = me.getStoreName(col)
+       *    const callback = data => {
+       *      if (data) {
+       *        me.setState({ [storeName]: data })
+       *        params.success(data)
+       *      }
+       *    }
+       *    odataProviderInstance.getFilterValuesParams(params.colDef.field, callback)
+       *  }
+       * 
+       * ///....
+       *      <AgGridColumn
+                    field="product"
+                    headerName={'PRODUCT'}
+                    filter="agSetColumnFilter"
+                    // rowGroup
+                    // enablePivot
+                    enableRowGroup
+                    filterParams={{
+                      values: setFilterValuesFuncParams,
+                      newRowsAction: 'keep'
+                    }}
+                    // filterParams={{caseSensitive: true}}
+                  />
+       * </code></pre>
+       */
   getFilterValuesParams = (
     field: string,
     callback: (data: any[]) => void,
@@ -888,14 +888,18 @@ export class OdataProvider implements OdataProviderOptions {
         requestSrv.pivotCols.length > 0 &&
         requestSrv.valueCols.length > 0
 
-    if (!pivotActive) {
-      let fn = (params as any).columnApi.setPivotResultColumns
-      if (fn != null) {
+    if (!pivotActive && isServerMode) {
+      //ver 31+
+      //@ts-expect-error
+      if (params.api?.setPivotResultColumns) {
+        //@ts-expect-error
+        params.api?.setPivotResultColumns(null)
+      } else if (params.columnApi?.setPivotResultColumns) {
         // if ((params as any).columnApi.isPivotMode()) {
-        ;(params as any).columnApi.setPivotResultColumns([])
+        params.columnApi?.setPivotResultColumns([])
         // }
       } else {
-        ;(params as any).columnApi.setSecondaryColumns([])
+        params.columnApi?.setSecondaryColumns?.([])
       }
     }
     const options = me.getOdataOptions(params)
@@ -912,7 +916,8 @@ export class OdataProvider implements OdataProviderOptions {
     Promise.race([me.cancelPromice.promise, me.callApi(query)]).then(
       async (x) => {
         if (!x) {
-          params.failCallback()
+          //@ts-expect-error
+          ;(params.failCallback || params.fail)?.()
         } else {
           const values = me.getOdataResult(x)
           if (!pivotActive) {
@@ -953,7 +958,8 @@ export class OdataProvider implements OdataProviderOptions {
                 const subQuery = me.toQuery(options)
                 const newRowData = await me.callApi(subQuery)
                 if (!newRowData) {
-                  params.failCallback()
+                  //@ts-expect-error
+                  ;(params.failCallback || params.fail)?.()
                   return
                 }
                 eof = newRowData.length !== options.top
@@ -992,17 +998,18 @@ export class OdataProvider implements OdataProviderOptions {
             if (this.afterLoadData) {
               this.afterLoadData(options, rowData, totalCount)
             }
-            if (requestSrv.groupKeys.length === 0) {
+            if (requestSrv.groupKeys.length === 0 && isServerMode) {
               if (this.beforeSetSecondaryColumns) {
                 this.beforeSetSecondaryColumns(secondaryColDefs)
               }
-              let fn = (params as any).columnApi.setPivotResultColumns
+              const fn =
+                //@ts-expect-error
+                params.api?.setPivotResultColumns ||
+                params.columnApi?.setPivotResultColumns
               if (fn) {
-                ;(params as any).columnApi.setPivotResultColumns(
-                  secondaryColDefs
-                )
+                fn(secondaryColDefs)
               } else {
-                ;(params as any).columnApi.setSecondaryColumns(secondaryColDefs)
+                params.columnApi?.setSecondaryColumns?.(secondaryColDefs)
               }
             }
           }
