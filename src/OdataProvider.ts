@@ -444,7 +444,9 @@ export class OdataProvider implements OdataProviderOptions {
    * @param value string value
    */
   encode = (value: string): string =>
-    this.isStrVal(value) ? replaceAll(value, "'", "''") : value
+    this.isStrVal(value)
+      ? replaceAll(encodeURIComponent(value), "'", "''")
+      : value
   /**
    * Conctat to date a time for create datetime format for odata query
    * @param value date string
