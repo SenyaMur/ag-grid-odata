@@ -15,6 +15,9 @@ import {
 } from './types'
 
 import { replaceAll } from './utils'
+function colPivotNameGenerateDefault(valueCol: ColumnVO) {
+  return valueCol.aggFunc + '(' + valueCol.displayName + ')'
+}
 export declare class OdataProviderOptions {
   /**
    * Function for call odata api
@@ -128,6 +131,11 @@ export declare class OdataProviderOptions {
       provider: OdataProvider
     ) => string
   }
+  /**
+   * Function for custom generate name for pivot column
+   * Default format: aggFunc(colName)
+   */
+  colPivotNameGenerate?: typeof colPivotNameGenerateDefault
 }
 
 declare interface CancelablePromise {
@@ -152,7 +160,7 @@ export class OdataProvider implements OdataProviderOptions {
   /**
    * Callback for extend odata query options for implement user logic
    */
-  beforeRequest: (
+  beforeRequest?: (
     options: OdataQueryOptions,
     provider: OdataProvider,
     request: IGetRowsParams | IServerSideGetRowsRequest
@@ -175,7 +183,7 @@ export class OdataProvider implements OdataProviderOptions {
      }
       * </pre></code>
       */
-  beforeSetSecondaryColumns: (
+  beforeSetSecondaryColumns?: (
     secondaryColDefs: (ColDef | ColGroupDef)[]
   ) => void
   /**
@@ -193,7 +201,7 @@ export class OdataProvider implements OdataProviderOptions {
            }
       * </code></pre>
       */
-  afterLoadData: (
+  afterLoadData?: (
     options: OdataQueryExtendOptions,
     rowData: any[],
     totalCount: number
@@ -201,7 +209,7 @@ export class OdataProvider implements OdataProviderOptions {
   /**
    * Callback for catch error
    */
-  setError: (
+  setError?: (
     error: any,
     params: IGetRowsParams | IServerSideGetRowsParams
   ) => void
@@ -247,9 +255,15 @@ export class OdataProvider implements OdataProviderOptions {
       provider: OdataProvider
     ) => string
   }
+  /**
+   * Function for custom generate name for pivot column
+   * Default format: aggFunc(colName)
+   */
+  colPivotNameGenerate?: typeof colPivotNameGenerateDefault
   cancelPromice: CancelablePromise
   constructor(options: OdataProviderOptions) {
     Object.assign(this, options)
+    //@ts-ignore
     if (this.callApi == null) {
       throw new Error('callApi must be specified')
     }
@@ -408,34 +422,35 @@ export class OdataProvider implements OdataProviderOptions {
    * @param options parameter for odata query
    */
   toQuery = (options: OdataQueryExtendFull): string => {
-    let path: string[] = []
+    const path: Record<string, string> = {}
     if (options.count) {
-      path.push('$count=true')
+      path['$count'] = true + ''
     }
     if (options.skip) {
-      path.push(`$skip=${options.skip}`)
+      path['$skip'] = options.skip + ''
     }
     if (options.top) {
-      path.push(`$top=${options.top}`)
+      path['$top'] = options.top + ''
     }
     if (options.sort && options.sort.length > 0) {
-      path.push('$orderby=' + options.sort.join(','))
+      path['$orderby'] = options.sort.join(',')
     }
     if (options.filter && options.filter.length > 0) {
-      path.push('$filter=' + options.filter.join(' and '))
+      path['$filter'] = options.filter.join(' and ')
     }
     if (options.apply && options.apply.length > 0) {
-      path.push('$apply=' + options.apply.join('/'))
+      path['$apply'] = options.apply.join('/')
     }
     if (options.expand && options.expand.length > 0) {
-      path.push('$expand=' + options.expand.join(','))
+      path['$expand'] = options.expand.join(',')
     }
     if (options.select && options.select.length > 0) {
-      path.push('$select=' + options.select.join(','))
+      path['$select'] = options.select.join(',')
     }
+
     let query: string = ''
-    if (path.length > 0) {
-      query = '?' + path.join('&')
+    if (Object.keys(path).length > 0) {
+      query = '?' + new URLSearchParams(path).toString()
     }
     return query
   }
@@ -444,9 +459,7 @@ export class OdataProvider implements OdataProviderOptions {
    * @param value string value
    */
   encode = (value: string): string =>
-    this.isStrVal(value)
-      ? replaceAll(encodeURIComponent(value), "'", "''")
-      : value
+    this.isStrVal(value) ? replaceAll(value, "'", "''") : value
   /**
    * Conctat to date a time for create datetime format for odata query
    * @param value date string
@@ -542,9 +555,9 @@ export class OdataProvider implements OdataProviderOptions {
    */
   private getRowCustomFilter = (colValue: any, col: any) => {
     const me = this
-    var colName = col.field
-    var isCaseSensitiveStringFilter = me.getIsNeedCaseSensitive(colName)
-    var rowCustomFilter = me.rowCustomFilter && me.rowCustomFilter[colName]
+    let colName = col.field
+    const isCaseSensitiveStringFilter = me.getIsNeedCaseSensitive(colName)
+    const rowCustomFilter = me.rowCustomFilter && me.rowCustomFilter[colName]
     colName = replaceAll(colName, '.', '/')
     colName = me.getWrapColumnName(colName)
     if (rowCustomFilter) {
@@ -590,12 +603,15 @@ export class OdataProvider implements OdataProviderOptions {
    * @param data odata result
    * @param countField count field name
    */
-  private getPivot = (
+  public getPivot = (
     pivotCols: ColumnVO[],
     rowGroupCols: ColumnVO[],
     valueCols: ColumnVO[],
     data: any[],
-    countField: string
+    countField: string,
+    colPivotNameGenerate: (
+      col: ColumnVO
+    ) => string = colPivotNameGenerateDefault
   ): PivotResultDat => {
     // assume 1 pivot col and 1 value col for this example
     const me = this
@@ -608,10 +624,10 @@ export class OdataProvider implements OdataProviderOptions {
     const secondaryColDefsMap = {}
 
     data.forEach(function (item) {
-      var pivotValues: string[] = []
+      const pivotValues: string[] = []
       pivotCols.forEach(function (pivotCol) {
-        var pivotField = pivotCol.id
-        var pivotValue = me.getValue(pivotField, item)
+        const pivotField = pivotCol.id
+        const pivotValue = me.getValue(pivotField, item)
         if (
           pivotValue !== null &&
           pivotValue !== undefined &&
@@ -623,14 +639,14 @@ export class OdataProvider implements OdataProviderOptions {
         }
       })
 
-      // var pivotValue = item[pivotField].toString();
-      var pivotItem = {}
+      // let pivotValue = item[pivotField].toString();
+      const pivotItem = {}
 
       valueCols.forEach(function (valueCol) {
-        var valField = valueCol.id
-        var colKey = createColKey(pivotValues, valField)
+        const valField = valueCol.id
+        const colKey = createColKey(pivotValues, valField)
 
-        var value = me.getValue(valField, item)
+        const value = me.getValue(valField, item)
         pivotItem[colKey] = value
 
         if (!colKeyExistsMap[colKey]) {
@@ -644,7 +660,7 @@ export class OdataProvider implements OdataProviderOptions {
       }
 
       rowGroupCols.forEach(function (rowGroupCol) {
-        var rowGroupField = rowGroupCol.id.split('.')[0]
+        const rowGroupField = rowGroupCol.id.split('.')[0]
         pivotItem[rowGroupField] = item[rowGroupField]
       })
 
@@ -652,7 +668,7 @@ export class OdataProvider implements OdataProviderOptions {
     })
 
     function addNewAggCol(colKey: string, valueCol: ColumnVO): void {
-      var newCol = {
+      const newCol = {
         id: colKey,
         field: colKey,
         aggFunc: valueCol.aggFunc,
@@ -661,14 +677,14 @@ export class OdataProvider implements OdataProviderOptions {
     }
 
     function addNewSecondaryColDef(colKey, pivotValues, valueCol) {
-      var parentGroup: any = null
+      let parentGroup: any = null
 
-      var keyParts: any = []
+      const keyParts: any = []
 
       pivotValues.forEach(function (pivotValue: any) {
         keyParts.push(pivotValue)
-        var colKey = createColKey(keyParts)
-        var groupColDef: any = secondaryColDefsMap[colKey]
+        const colKey = createColKey(keyParts)
+        let groupColDef: any = secondaryColDefsMap[colKey]
         if (!groupColDef) {
           groupColDef = {
             groupId: colKey,
@@ -687,7 +703,7 @@ export class OdataProvider implements OdataProviderOptions {
 
       parentGroup.children.push({
         colId: colKey,
-        headerName: valueCol.aggFunc + '(' + valueCol.displayName + ')',
+        headerName: colPivotNameGenerate(valueCol),
         field: colKey,
         suppressMenu: true,
         sortable: false,
@@ -695,7 +711,7 @@ export class OdataProvider implements OdataProviderOptions {
     }
 
     function createColKey(pivotValues: string[], valueField?: string): string {
-      var result = pivotValues.join('|')
+      let result = pivotValues.join('|')
       if (valueField !== undefined) {
         result += '|' + valueField
       }
@@ -717,20 +733,20 @@ export class OdataProvider implements OdataProviderOptions {
    * @param groupKeys what groups the user is viewing
    * @param countField count field name
    */
-  private buildGroupsFromData = (
+  public buildGroupsFromData = (
     rowData: any[],
     rowGroupCols: ColumnVO[],
     groupKeys: string[],
     countField: string
   ): any[] => {
     const me = this
-    let rowGroupCol = rowGroupCols[groupKeys.length]
-    let field = rowGroupCol.id
-    let mappedRowData = me.groupBy(rowData, field)
-    let groups: any = []
+    const rowGroupCol = rowGroupCols[groupKeys.length]
+    const field = rowGroupCol.id
+    const mappedRowData = me.groupBy(rowData, field)
+    const groups: any = []
 
     me.iterateObject(mappedRowData, function (key, rowData) {
-      var groupItem = me.aggregateList(rowData, countField)
+      const groupItem = me.aggregateList(rowData, countField)
       groupItem[field] = key
       groups.push(groupItem)
     })
@@ -763,11 +779,11 @@ export class OdataProvider implements OdataProviderOptions {
    * @param field grouping field
    */
   private groupBy = (rowData: any[], field: string): any => {
-    var result = {}
+    const result = {}
     const me = this
     rowData.forEach(function (item) {
-      var key = me.getValue(field, item)
-      var listForThisKey = result[key]
+      const key = me.getValue(field, item)
+      let listForThisKey = result[key]
       if (!listForThisKey) {
         listForThisKey = []
         result[key] = listForThisKey
@@ -783,7 +799,7 @@ export class OdataProvider implements OdataProviderOptions {
    * @param countField field contained count of all records
    */
   private aggregateList = (rowData: any[], countField: string): any => {
-    var result = {}
+    let result = {}
     rowData.forEach((row) => {
       if (countField && row[countField] != null) {
         const totalCount = (result[countField] || 0) + (row[countField] || 0)
@@ -845,7 +861,7 @@ export class OdataProvider implements OdataProviderOptions {
     }
     me.callApi(me.toQuery(options)).then((x) => {
       if (x) {
-        let values = me.getOdataResult(x)
+        const values = me.getOdataResult(x)
         callback(values.map((y) => y[field]))
       }
     })
@@ -973,7 +989,8 @@ export class OdataProvider implements OdataProviderOptions {
               requestSrv.rowGroupCols,
               requestSrv.valueCols,
               rowData,
-              childCount
+              childCount,
+              me.colPivotNameGenerate
             )
             rowData = pivotResult.data
             const secondaryColDefs = pivotResult.secondaryColDefs
@@ -1171,9 +1188,9 @@ export class OdataProvider implements OdataProviderOptions {
         } else {
           // If request rowData by group filter
           for (let idx = 0; idx < requestSrv.groupKeys.length; idx++) {
-            var colValue = requestSrv.groupKeys[idx]
-            var col = requestSrv.rowGroupCols[idx]
-            var condition = me.getRowCustomFilter(colValue, col)
+            const colValue = requestSrv.groupKeys[idx]
+            const col = requestSrv.rowGroupCols[idx]
+            const condition = me.getRowCustomFilter(colValue, col)
             filter.push(condition)
           }
         }
