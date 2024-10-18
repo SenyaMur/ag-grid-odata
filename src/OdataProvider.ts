@@ -384,6 +384,8 @@ export class OdataProvider implements OdataProviderOptions {
       `not (${col} in (${values.map((x) => `${x}`).join()}))`,
     // Date
     trunc: (col: string): string => `date(${col})`,
+    blank: (col: string): string => `${col} eq null`,
+    notBlank: (col: string): string => `${col} ne null`,
   }
 
   /**
