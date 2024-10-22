@@ -327,10 +327,12 @@ export class OdataProvider implements OdataProviderOptions {
       value1: string,
       isCaseSensitiveStringFilter: boolean
     ): string =>
-      `${this.ifTolowerCol(
+      `(${this.ifTolowerCol(
         col,
         isCaseSensitiveStringFilter
-      )} ne ${this.ifTolower(value1, isCaseSensitiveStringFilter)}`,
+      )} ne ${this.ifTolower(value1, isCaseSensitiveStringFilter)} ${
+        isCaseSensitiveStringFilter ? `or ${col} eq null` : '' //It's bag in odata api c#
+      })`,
     contains: (
       col: string,
       value1: string,
