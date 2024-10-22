@@ -331,7 +331,7 @@ export class OdataProvider implements OdataProviderOptions {
         col,
         isCaseSensitiveStringFilter
       )} ne ${this.ifTolower(value1, isCaseSensitiveStringFilter)} ${
-        isCaseSensitiveStringFilter ? `or ${col} eq null` : '' //It's bag in odata api c#
+        !isCaseSensitiveStringFilter ? `or ${col} eq null` : '' //It's bag in odata api c#
       })`,
     contains: (
       col: string,
