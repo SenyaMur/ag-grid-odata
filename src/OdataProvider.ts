@@ -39,7 +39,7 @@ export declare class OdataProviderOptions {
   beforeRequest?: (
     options: OdataQueryOptions,
     provider: OdataProvider,
-    request: IGetRowsParams | IServerSideGetRowsRequest
+    request: IGetRowsParams | IServerSideGetRowsRequest,
   ) => void
   /**
     * Callback for pivot or group for aplly column ag-grid settings
@@ -60,7 +60,7 @@ export declare class OdataProviderOptions {
     * </pre></code>
     */
   beforeSetSecondaryColumns?: (
-    secondaryColDefs: (ColDef | ColGroupDef)[]
+    secondaryColDefs: (ColDef | ColGroupDef)[],
   ) => void
   /**
     * Callback invoked after load data
@@ -80,14 +80,14 @@ export declare class OdataProviderOptions {
   afterLoadData?: (
     options: OdataQueryExtendOptions,
     rowData: any[],
-    totalCount: number
+    totalCount: number,
   ) => void
   /**
    * Callback for catch error
    */
   setError?: (
     error: any,
-    params: IGetRowsParams | IServerSideGetRowsParams
+    params: IGetRowsParams | IServerSideGetRowsParams,
   ) => void
   /**
    * List of columns by id/field are case sensitive for build odata query
@@ -110,7 +110,7 @@ export declare class OdataProviderOptions {
       colName: string,
       col: any,
       isCaseSensitiveStringFilter: boolean,
-      provider: OdataProvider
+      provider: OdataProvider,
     ) => string
   }
   /**
@@ -128,7 +128,7 @@ export declare class OdataProviderOptions {
       colValue: any,
       col: any,
       isCaseSensitiveStringFilter: boolean,
-      provider: OdataProvider
+      provider: OdataProvider,
     ) => string
   }
   /**
@@ -163,7 +163,7 @@ export class OdataProvider implements OdataProviderOptions {
   beforeRequest?: (
     options: OdataQueryOptions,
     provider: OdataProvider,
-    request: IGetRowsParams | IServerSideGetRowsRequest
+    request: IGetRowsParams | IServerSideGetRowsRequest,
   ) => void
   /**
       * Callback for pivot or group for aplly column ag-grid settings
@@ -184,7 +184,7 @@ export class OdataProvider implements OdataProviderOptions {
       * </pre></code>
       */
   beforeSetSecondaryColumns?: (
-    secondaryColDefs: (ColDef | ColGroupDef)[]
+    secondaryColDefs: (ColDef | ColGroupDef)[],
   ) => void
   /**
       * Callback invoked after load data
@@ -204,14 +204,14 @@ export class OdataProvider implements OdataProviderOptions {
   afterLoadData?: (
     options: OdataQueryExtendOptions,
     rowData: any[],
-    totalCount: number
+    totalCount: number,
   ) => void
   /**
    * Callback for catch error
    */
   setError?: (
     error: any,
-    params: IGetRowsParams | IServerSideGetRowsParams
+    params: IGetRowsParams | IServerSideGetRowsParams,
   ) => void
   /**
    * List of columns by id/field are case sensitive for build odata query
@@ -234,7 +234,7 @@ export class OdataProvider implements OdataProviderOptions {
       colName: string,
       col: any,
       isCaseSensitiveStringFilter: boolean,
-      provider: OdataProvider
+      provider: OdataProvider,
     ) => string
   }
   /**
@@ -252,7 +252,7 @@ export class OdataProvider implements OdataProviderOptions {
       colValue: any,
       col: any,
       isCaseSensitiveStringFilter: boolean,
-      provider: OdataProvider
+      provider: OdataProvider,
     ) => string
   }
   /**
@@ -316,68 +316,68 @@ export class OdataProvider implements OdataProviderOptions {
     equalsStr: (
       col: string,
       value1: string,
-      isCaseSensitiveStringFilter: boolean
+      isCaseSensitiveStringFilter: boolean,
     ): string =>
       `${this.ifTolowerCol(
         col,
-        isCaseSensitiveStringFilter
+        isCaseSensitiveStringFilter,
       )} eq ${this.ifTolower(value1, isCaseSensitiveStringFilter)}`,
     notEqualStr: (
       col: string,
       value1: string,
-      isCaseSensitiveStringFilter: boolean
+      isCaseSensitiveStringFilter: boolean,
     ): string =>
       `(${this.ifTolowerCol(
         col,
-        isCaseSensitiveStringFilter
+        isCaseSensitiveStringFilter,
       )} ne ${this.ifTolower(value1, isCaseSensitiveStringFilter)} ${
         !isCaseSensitiveStringFilter ? `or ${col} eq null` : '' //It's bag in odata api c#
       })`,
     contains: (
       col: string,
       value1: string,
-      isCaseSensitiveStringFilter: boolean
+      isCaseSensitiveStringFilter: boolean,
     ): string =>
       `contains(${this.ifTolowerCol(
         col,
-        isCaseSensitiveStringFilter
+        isCaseSensitiveStringFilter,
       )},${this.ifTolower(value1, isCaseSensitiveStringFilter)})`,
     notContains: (
       col: string,
       value1: string,
-      isCaseSensitiveStringFilter: boolean
+      isCaseSensitiveStringFilter: boolean,
     ): string =>
       `contains(${this.ifTolowerCol(
         col,
-        isCaseSensitiveStringFilter
+        isCaseSensitiveStringFilter,
       )},${this.ifTolower(value1, isCaseSensitiveStringFilter)}) eq false`,
     startsWith: (
       col: string,
       value1: string,
-      isCaseSensitiveStringFilter: boolean
+      isCaseSensitiveStringFilter: boolean,
     ): string =>
       `startswith(${this.ifTolowerCol(
         col,
-        isCaseSensitiveStringFilter
+        isCaseSensitiveStringFilter,
       )},${this.ifTolower(value1, isCaseSensitiveStringFilter)})  eq true`,
     endsWith: (
       col: string,
       value1: string,
-      isCaseSensitiveStringFilter: boolean
+      isCaseSensitiveStringFilter: boolean,
     ): string =>
       `endswith(${this.ifTolowerCol(
         col,
-        isCaseSensitiveStringFilter
+        isCaseSensitiveStringFilter,
       )},${this.ifTolower(value1, isCaseSensitiveStringFilter)})  eq true`,
     inStr: (
       col: string,
       values: string[],
-      isCaseSensitiveStringFilter: boolean
+      isCaseSensitiveStringFilter: boolean,
     ): string =>
       `${this.ifTolowerCol(col, isCaseSensitiveStringFilter)} in (${values
         .map(
           (x) =>
-            `'${this.ifTolower(this.encode(x), isCaseSensitiveStringFilter)}'`
+            `'${this.ifTolower(this.encode(x), isCaseSensitiveStringFilter)}'`,
         )
         .join()})`,
     in: (col: string, values: string[]) =>
@@ -472,7 +472,7 @@ export class OdataProvider implements OdataProviderOptions {
     const dt = new Date(value)
     if (isNaN(dt.getTime())) return null
     const dt1 = new Date(
-      Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate())
+      Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate()),
     )
     return dt1.toISOString()
   }
@@ -521,7 +521,7 @@ export class OdataProvider implements OdataProviderOptions {
           return me.odataOperator[operatorName](
             colName,
             `'${filter}'`,
-            isCaseSensitiveStringFilter
+            isCaseSensitiveStringFilter,
           )
         }
         case 'date':
@@ -538,7 +538,7 @@ export class OdataProvider implements OdataProviderOptions {
             return me.odataOperator[col.type](
               colName,
               `${me.toDateTime(col.dateFrom)}`,
-              `${me.toDateTime(col.dateTo)}`
+              `${me.toDateTime(col.dateTo)}`,
             )
           }
           break
@@ -547,7 +547,7 @@ export class OdataProvider implements OdataProviderOptions {
             ? me.odataOperator.inStr(
                 colName,
                 col.values,
-                isCaseSensitiveStringFilter
+                isCaseSensitiveStringFilter,
               )
             : ''
         default:
@@ -574,7 +574,7 @@ export class OdataProvider implements OdataProviderOptions {
         colValue,
         col,
         isCaseSensitiveStringFilter,
-        me
+        me,
       )
     } else {
       const isStringValue = me.isStrVal(colValue)
@@ -583,7 +583,7 @@ export class OdataProvider implements OdataProviderOptions {
         .concat(
           (isStringValue ? "'" : '') +
             me.encode(colValue) +
-            (isStringValue ? "'" : '')
+            (isStringValue ? "'" : ''),
         )
     }
   }
@@ -618,8 +618,8 @@ export class OdataProvider implements OdataProviderOptions {
     data: any[],
     countField: string,
     colPivotNameGenerate: (
-      col: ColumnVO
-    ) => string = colPivotNameGenerateDefault
+      col: ColumnVO,
+    ) => string = colPivotNameGenerateDefault,
   ): PivotResultDat => {
     // assume 1 pivot col and 1 value col for this example
     const me = this
@@ -745,7 +745,7 @@ export class OdataProvider implements OdataProviderOptions {
     rowData: any[],
     rowGroupCols: ColumnVO[],
     groupKeys: string[],
-    countField: string
+    countField: string,
   ): any[] => {
     const me = this
     const rowGroupCol = rowGroupCols[groupKeys.length]
@@ -753,7 +753,8 @@ export class OdataProvider implements OdataProviderOptions {
     const mappedRowData = me.groupBy(rowData, field)
     const groups: any = []
 
-    me.iterateObject(mappedRowData, function (key, rowData) {
+    mappedRowData.forEach(function (x) {
+      const [key, rowData] = x
       const groupItem = me.aggregateList(rowData, countField)
       groupItem[field] = key
       groups.push(groupItem)
@@ -762,43 +763,23 @@ export class OdataProvider implements OdataProviderOptions {
   }
 
   /**
-   * Internal function for execute callback function for each property of object
-   * @param object object contained odata grouped result
-   * @param callback function do somthing
-   */
-  private iterateObject = (
-    object: any,
-    callback: (key: string, rowData: any[]) => void
-  ): void => {
-    if (!object) {
-      return
-    }
-    const keys = Object.keys(object)
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[i]
-      const value = object[key]
-      callback(key, value)
-    }
-  }
-
-  /**
    * Prepeare grouped data
    * @param rowData array odata result
    * @param field grouping field
    */
   private groupBy = (rowData: any[], field: string): any => {
-    const result = {}
+    const result = new Map()
     const me = this
     rowData.forEach(function (item) {
       const key = me.getValue(field, item)
-      let listForThisKey = result[key]
+      let listForThisKey = result.get(key)
       if (!listForThisKey) {
         listForThisKey = []
-        result[key] = listForThisKey
+        result.set(key, listForThisKey)
       }
       listForThisKey.push(item)
     })
-    return result
+    return result.entries()
   }
 
   /**
@@ -858,7 +839,7 @@ export class OdataProvider implements OdataProviderOptions {
   getFilterValuesParams = (
     field: string,
     callback: (data: any[]) => void,
-    beforeRequest: (options: OdataQueryExtendFull) => void | undefined
+    beforeRequest: (options: OdataQueryExtendFull) => void | undefined,
   ): void => {
     const me = this
     const options: OdataQueryExtendFull = {
@@ -998,7 +979,7 @@ export class OdataProvider implements OdataProviderOptions {
               requestSrv.valueCols,
               rowData,
               childCount,
-              me.colPivotNameGenerate
+              me.colPivotNameGenerate,
             )
             rowData = pivotResult.data
             const secondaryColDefs = pivotResult.secondaryColDefs
@@ -1006,14 +987,14 @@ export class OdataProvider implements OdataProviderOptions {
               rowData,
               requestSrv.rowGroupCols,
               requestSrv.groupKeys,
-              childCount
+              childCount,
             )
             const totalCount =
               requestSrv.groupKeys.length === 0
                 ? rowData.length
                 : rowData.length === options.top
-                ? null
-                : rowData.length
+                  ? null
+                  : rowData.length
             // if (totalCount > (options.top || 0)) {
             //   const serverSideBlock = (params as any).parentNode.rowModel
             //     .rowNodeBlockLoader.blocks[0];
@@ -1047,7 +1028,7 @@ export class OdataProvider implements OdataProviderOptions {
         if (this.setError) {
           this.setError(err, params)
         }
-      }
+      },
     )
   }
   /**
@@ -1061,7 +1042,7 @@ export class OdataProvider implements OdataProviderOptions {
     params: IGetRowsParams | IServerSideGetRowsParams,
     isServerMode: boolean,
     rowsThisBlock: any[],
-    rowCount?: number
+    rowCount?: number,
   ): void => {
     if (isServerMode) {
       ;(params as IServerSideGetRowsParams).success({
@@ -1077,7 +1058,7 @@ export class OdataProvider implements OdataProviderOptions {
    * @param params ag-grid details for the request
    */
   getOdataOptions = (
-    params: IGetRowsParams | IServerSideGetRowsParams
+    params: IGetRowsParams | IServerSideGetRowsParams,
   ): OdataQueryExtendFull => {
     const me = this
     const options: OdataQueryExtendFull = {}
@@ -1164,21 +1145,21 @@ export class OdataProvider implements OdataProviderOptions {
               colValue.aggFunc &&
                 aggregate.push(
                   me.odataAggregation[colValue.aggFunc](
-                    me.getWrapColumnName(colValue.field)
-                  )
+                    me.getWrapColumnName(colValue.field),
+                  ),
                 )
             }
           }
           let groups = [
             me.getWrapColumnName(
-              requestSrv.rowGroupCols[requestSrv.groupKeys.length].field
+              requestSrv.rowGroupCols[requestSrv.groupKeys.length].field,
             ),
           ]
           const sort = options.sort || []
           const sortColOnly = sort.map((x) => x.split(' ')[0])
           if (pivotActive) {
             groups = groups.concat(
-              requestSrv.pivotCols.map((x) => me.getWrapColumnName(x.field))
+              requestSrv.pivotCols.map((x) => me.getWrapColumnName(x.field)),
             )
             groups.forEach((x) => {
               if (sortColOnly.indexOf(x) < 0) {
@@ -1190,13 +1171,13 @@ export class OdataProvider implements OdataProviderOptions {
           apply.push(
             `groupby((${groups.join(',')})${
               aggregate.length > 0 ? `,aggregate(${aggregate.join(',')})` : ''
-            })`
+            })`,
           )
 
           options.apply = apply
           if (options.sort && options.sort.length > 0) {
             options.sort = options.sort.filter(
-              (x) => groups.indexOf(x.split(' ')[0]) >= 0
+              (x) => groups.indexOf(x.split(' ')[0]) >= 0,
             )
           }
           // delete options.sort;
