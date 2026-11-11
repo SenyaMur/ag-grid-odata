@@ -937,7 +937,11 @@ export class OdataProvider implements OdataProviderOptions {
               let count = values.length
               if (count === options.top && options.skip === 0) {
                 // If received grouped count of value large than requested then request total count of values
-                me.callApi(query + '/aggregate($count as count)').then((y) => {
+                // The count must run over the whole $apply result, so paging, ordering and projection are not sent
+                const countQuery = me.toQuery({
+                  apply: [...(options.apply || []), 'aggregate($count as count)'],
+                })
+                me.callApi(countQuery).then((y) => {
                   count = me.getOdataResult(y)[0].count
                   me.setResult(params, isServerMode, values, count)
                 })
